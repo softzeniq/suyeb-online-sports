@@ -1,5 +1,5 @@
 "use client";
-import { useStoreSettings } from "@/app/hooks/useStoreSettings";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useEffect } from "react";
 
 export function DynamicFavicon() {

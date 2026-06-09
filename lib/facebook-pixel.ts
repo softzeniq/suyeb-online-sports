@@ -1,7 +1,7 @@
 // Facebook Pixel + Conversion API utilities
 "use client";
 
-import { createClient } from "@/app/utils/supabase/client";
+import { createClient } from "@/utils/supabase/client";
 
 declare global {
   interface Window {

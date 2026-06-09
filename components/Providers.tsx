@@ -1,12 +1,12 @@
 "use client";
 
-import { AuthProvider } from "@/app/hooks/useAuth";
 import { DynamicFavicon } from "@/components/DynamicFavIcon";
 import { FacebookPixelProvider } from "@/components/FacebookPixelProvider";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
 import { SiteSettingsProvider } from "@/contexts/SiteSettingContext";
+import { AuthProvider } from "@/hooks/useAuth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { Toaster } from "sonner";

@@ -1,4 +1,4 @@
-import { useStoreSettings } from "@/app/hooks/useStoreSettings";
+import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { MessageCircle } from "lucide-react";
 
 export function WhatsAppIcon() {
