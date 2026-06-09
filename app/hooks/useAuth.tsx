@@ -1,10 +1,11 @@
-import type { Session, User } from '@supabase/supabase-js';
-import type { ReactNode } from 'react';
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { createClient } from '../utils/supabase/client';
+"use client";
+import type { Session, User } from "@supabase/supabase-js";
+import type { ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createClient } from "../utils/supabase/client";
 
-type AppRole = 'admin' | 'manager' | 'order_handler' | 'customer';
-const supabase =createClient()
+type AppRole = "admin" | "manager" | "order_handler" | "customer";
+const supabase = createClient();
 
 interface AuthContextType {
   user: User | null;
@@ -38,15 +39,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       // Check is_active first
       const { data: profile } = await supabase
-        .from('profiles')
-        .select('is_active')
-        .eq('user_id', userId)
+        .from("profiles")
+        .select("is_active")
+        .eq("user_id", userId)
         .maybeSingle();
 
       if (profile && profile.is_active === false) {
         // User is disabled
         await supabase.auth.signOut();
-        setAuthError('Your account has been disabled. Contact an administrator.');
+        setAuthError(
+          "Your account has been disabled. Contact an administrator.",
+        );
         setUser(null);
         setSession(null);
         setIsAdmin(false);
@@ -56,17 +59,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const { data: roleData } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
         .maybeSingle();
 
-      const role = (roleData?.role as AppRole) || 'customer';
+      const role = (roleData?.role as AppRole) || "customer";
       setUserRole(role);
-      setIsAdmin(role === 'admin');
-      setIsStaff(['admin', 'manager', 'order_handler'].includes(role));
+      setIsAdmin(role === "admin");
+      setIsStaff(["admin", "manager", "order_handler"].includes(role));
     } catch (error) {
-      console.error('Error checking roles:', error);
+      console.error("Error checking roles:", error);
       setIsAdmin(false);
       setIsStaff(false);
       setUserRole(null);
@@ -86,31 +89,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initRef.current = true;
 
     timeoutRef.current = window.setTimeout(() => {
-      console.warn('Auth initialization timed out');
-      setAuthError('Auth initialization timed out');
+      console.warn("Auth initialization timed out");
+      setAuthError("Auth initialization timed out");
       finishLoading();
     }, AUTH_TIMEOUT_MS);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, newSession) => {
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+      setSession(newSession);
+      setUser(newSession?.user ?? null);
 
-        if (newSession?.user) {
-          setTimeout(async () => {
-            await checkRoles(newSession.user.id);
-            finishLoading();
-          }, 0);
-        } else {
-          setIsAdmin(false);
-          setIsStaff(false);
-          setUserRole(null);
+      if (newSession?.user) {
+        setTimeout(async () => {
+          await checkRoles(newSession.user.id);
           finishLoading();
-        }
+        }, 0);
+      } else {
+        setIsAdmin(false);
+        setIsStaff(false);
+        setUserRole(null);
+        finishLoading();
       }
-    );
+    });
 
-    supabase.auth.getSession()
+    supabase.auth
+      .getSession()
       .then(async ({ data: { session: currentSession }, error }) => {
         if (error) {
           setAuthError(error.message);
@@ -127,7 +131,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         finishLoading();
       })
       .catch(() => {
-        setAuthError('Failed to initialize auth');
+        setAuthError("Failed to initialize auth");
         finishLoading();
       });
 
@@ -141,7 +145,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     setAuthError(null);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
     if (error) setAuthError(error.message);
     return { error: error as Error | null };
   };
@@ -167,7 +174,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, session, isAdmin, isStaff, userRole, isLoading, authError, signIn, signUp, signOut }}
+      value={{
+        user,
+        session,
+        isAdmin,
+        isStaff,
+        userRole,
+        isLoading,
+        authError,
+        signIn,
+        signUp,
+        signOut,
+      }}
     >
       {children}
     </AuthContext.Provider>
@@ -177,7 +195,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

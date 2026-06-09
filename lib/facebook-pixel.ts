@@ -1,4 +1,5 @@
 // Facebook Pixel + Conversion API utilities
+"use client";
 
 import { createClient } from "@/app/utils/supabase/client";
 
@@ -9,7 +10,6 @@ declare global {
   }
 }
 
-const supabase = createClient();
 let pixelInitialized = false;
 let pixelId: string | null = null;
 let testEventCode: string | null = null;
@@ -58,6 +58,7 @@ async function sendCapiEvent(
   if (!capiEnabled) return;
 
   try {
+    const supabase = createClient();
     const cookies = getFacebookCookies();
     const userData: Record<string, any> = {
       client_user_agent: navigator.userAgent,
@@ -334,6 +335,7 @@ export async function testCapiEvent(): Promise<{
   error?: string;
 }> {
   try {
+    const supabase = createClient();
     const { data, error } = await supabase.functions.invoke("meta-capi", {
       body: {
         event_name: "PageView",

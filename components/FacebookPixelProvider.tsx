@@ -1,3 +1,4 @@
+"use client";
 import { useSiteSettings } from "@/contexts/SiteSettingContext";
 import { initFacebookPixel, trackPageView } from "@/lib/facebook-pixel";
 import { usePathname } from "next/navigation";

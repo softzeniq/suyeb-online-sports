@@ -1,3 +1,4 @@
+"use client";
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 
 export interface CartItem {

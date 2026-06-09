@@ -1,3 +1,4 @@
+"use client";
 import { useStoreSettings } from "@/app/hooks/useStoreSettings";
 import { useEffect } from "react";
 
