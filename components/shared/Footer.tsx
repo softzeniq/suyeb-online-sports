@@ -1,3 +1,4 @@
+"use client";
 import { useSiteSettings } from "@/contexts/SiteSettingContext";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { FaFacebook, FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
@@ -62,8 +63,8 @@ export function Footer() {
   // Fallback if no social links configured
   if (socialLinks.length === 0) {
     socialLinks.push(
-      { name: "Facebook", href: "#", icon: Facebook },
-      { name: "Instagram", href: "#", icon: Instagram },
+      { name: "Facebook", href: "#", icon: FaFacebook },
+      { name: "Instagram", href: "#", icon: FaInstagram },
     );
   }
 
