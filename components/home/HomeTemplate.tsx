@@ -42,7 +42,7 @@ function NewArrivalsSection({ section }: { section: HomepageSection }) {
             </p>
           </div>
           <Link
-            href="/shop?filter=new"
+            href="/products?filter=new"
             className="hidden sm:flex items-center gap-2 text-sm font-medium text-accent hover:underline"
           >
             View All <ArrowRight className="h-4 w-4" />

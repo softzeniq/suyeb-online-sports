@@ -39,7 +39,7 @@ export default function CategoryPage() {
       <>
         <div className="container-shop section-padding text-center">
           <h1 className="text-2xl font-bold mb-4">Category Not Found</h1>
-          <Link href="/shop" className="text-accent hover:underline">
+          <Link href="/products" className="text-accent hover:underline">
             Return to Shop
           </Link>
         </div>

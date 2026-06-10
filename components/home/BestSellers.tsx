@@ -55,7 +55,7 @@ export function BestSellers() {
             </p>
           </div>
           <Link
-            href="/shop?filter=bestsellers"
+            href="/products?filter=bestsellers"
             className="hidden sm:flex items-center gap-2 text-sm font-medium text-accent hover:underline"
           >
             {t("common.viewAll")} <ArrowRight className="h-4 w-4" />

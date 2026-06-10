@@ -3,6 +3,8 @@ import { useSiteSettings } from "@/contexts/SiteSettingContext";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useFeaturedProducts } from "@/hooks/useShopData";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { ProductCard } from "../products/ProductCard";
 
 export function FeaturedProducts() {
   const { data: products = [], isLoading } = useFeaturedProducts();
@@ -53,7 +55,7 @@ export function FeaturedProducts() {
             </p>
           </div>
           <Link
-            to="/shop"
+            href="/products"
             className="hidden sm:flex items-center gap-2 text-sm font-medium text-accent hover:underline"
           >
             {t("common.viewAll")} <ArrowRight className="h-4 w-4" />
@@ -72,7 +74,7 @@ export function FeaturedProducts() {
         </div>
 
         <Link
-          to="/shop"
+          href="/products"
           className="mt-8 flex sm:hidden items-center justify-center gap-2 text-sm font-medium text-accent hover:underline"
         >
           {t("common.viewAll")} <ArrowRight className="h-4 w-4" />

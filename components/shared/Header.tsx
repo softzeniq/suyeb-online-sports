@@ -28,7 +28,7 @@ export function Header() {
 
   const navigation = [
     { name: t("nav.home"), href: "/" },
-    { name: t("nav.shop"), href: "/shop" },
+    { name: t("nav.shop"), href: "/products" },
     { name: t("nav.categories"), href: "/categories" },
     { name: t("nav.about"), href: "/about" },
     { name: t("nav.contact"), href: "/contact" },
@@ -38,6 +38,7 @@ export function Header() {
     { code: "en", label: "English" },
     { code: "hi", label: "हिन्दी" },
     { code: "bn", label: "বাংলা" },
+    { code: "ar", label: "العربية" },
   ];
 
   return (
