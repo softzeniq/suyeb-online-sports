@@ -27,7 +27,7 @@ export default function CategoriesPage() {
           {categories.map((category) => (
             <Link
               key={category.id}
-              href={`/category/${category.slug}`}
+              href={`/categories/${category.slug}`}
               className="group relative overflow-hidden rounded-2xl aspect-[4/3]"
             >
               <Image
