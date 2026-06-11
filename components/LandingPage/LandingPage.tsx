@@ -13,7 +13,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, ShoppingBag, Star } from "lucide-react";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -38,7 +38,6 @@ const useLandingProducts = (ids: string[]) => {
 };
 
 export default function LandingPageView({ slug }: { slug?: string }) {
-  const { slug } = useParams<{ slug: string }>();
   const router = useRouter();
   const { data: page, isLoading } = useLandingPage(slug || "");
   const { t, formatCurrency, settings } = useSiteSettings();
