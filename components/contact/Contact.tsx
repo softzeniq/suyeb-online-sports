@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useSiteSettings } from "@/contexts/SiteSettingContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { Clock, Mail, MapPin, MessageCircle, Phone, Send } from "lucide-react";
 import { useState } from "react";

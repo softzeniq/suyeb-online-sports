@@ -1,5 +1,5 @@
 "use client";
-import { useSiteSettings } from "@/contexts/SiteSettingContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useBestSellers } from "@/hooks/useShopData";
 import { ArrowRight } from "lucide-react";

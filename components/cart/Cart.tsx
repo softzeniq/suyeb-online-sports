@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
-import { useSiteSettings } from "@/contexts/SiteSettingContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

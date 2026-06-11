@@ -1,5 +1,5 @@
 "use client";
-import { useSiteSettings } from "@/contexts/SiteSettingContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { FaFacebook, FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
 

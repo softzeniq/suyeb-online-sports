@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useCart } from "@/contexts/CartContext";
-import { useSiteSettings } from "@/contexts/SiteSettingContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { Globe, Menu, Search, ShoppingBag, User } from "lucide-react";
 import Image from "next/image";

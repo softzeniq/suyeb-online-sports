@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSiteSettings } from "@/contexts/SiteSettingContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useLandingPage } from "@/hooks/useLandingPages";
 import { useCreateOrder } from "@/hooks/useOrders";

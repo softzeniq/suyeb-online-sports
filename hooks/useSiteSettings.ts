@@ -1,4 +1,4 @@
-import { useSiteSettings } from "@/contexts/SiteSettingContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
 // Re-export the hook for convenience
 export { useSiteSettings };

@@ -1,5 +1,5 @@
 "use client";
-import { useSiteSettings } from "@/contexts/SiteSettingContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { initFacebookPixel, trackPageView } from "@/lib/facebook-pixel";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";

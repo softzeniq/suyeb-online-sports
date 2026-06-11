@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
-import { useSiteSettings } from "@/contexts/SiteSettingContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useProductReviews } from "@/hooks/useProductReviews";
 import { useProduct, useRelatedProducts } from "@/hooks/useShopData";

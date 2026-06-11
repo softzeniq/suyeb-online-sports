@@ -4,7 +4,7 @@ import {
   getConsentStatus,
 } from "@/components/FacebookPixelProvider";
 import { Button } from "@/components/ui/button";
-import { useSiteSettings } from "@/contexts/SiteSettingContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { Cookie, X } from "lucide-react";
 import { useEffect, useState } from "react";
 

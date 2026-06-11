@@ -5,7 +5,7 @@ import { FacebookPixelProvider } from "@/components/FacebookPixelProvider";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
-import { SiteSettingsProvider } from "@/contexts/SiteSettingContext";
+import { SiteSettingsProvider } from "@/contexts/SiteSettingsContext";
 import { AuthProvider } from "@/hooks/useAuth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
