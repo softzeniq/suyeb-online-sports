@@ -1,6 +1,9 @@
+import OrderSuccessPage from "@/components/orderSuccess/OrderSuccess";
 
 export default function page() {
   return (
-    <div>page</div>
-  )
+    <div>
+      <OrderSuccessPage />
+    </div>
+  );
 }
