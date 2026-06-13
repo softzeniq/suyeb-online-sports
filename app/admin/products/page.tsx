@@ -1,6 +1,9 @@
+import AdminProducts from "@/components/admin/Products";
 
 export default function page() {
   return (
-    <div>page</div>
-  )
+    <div>
+      <AdminProducts />
+    </div>
+  );
 }
