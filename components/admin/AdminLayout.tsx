@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { ReactNode, useState } from "react";
 import { AdminHeader } from "./Header";
 import { AdminSidebar } from "./Sidebar";
@@ -13,6 +14,12 @@ interface Props {
 
 export function AdminLayout({ children }: Props) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const isLoginPage = pathname === "/admin/login" || pathname === "/admin/register";
+
+  if (isLoginPage) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
