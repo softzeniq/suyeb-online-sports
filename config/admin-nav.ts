@@ -119,7 +119,7 @@ export const ADMIN_NAVIGATION: AdminNavItem[] = [
   },
   {
     name: "Homepage",
-    href: "/admin/homepage",
+    href: "/admin/home-page",
     icon: LayoutTemplate,
     roles: ["admin"],
     section: "System",
