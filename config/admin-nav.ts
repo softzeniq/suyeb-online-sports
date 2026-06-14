@@ -70,7 +70,7 @@ export const ADMIN_NAVIGATION: AdminNavItem[] = [
   },
   {
     name: "Shipping Zones",
-    href: "/admin/shipping",
+    href: "/admin/shipping-zones",
     icon: MapPin,
     roles: ["admin"],
     section: "Store",
