@@ -1,5 +1,5 @@
 "use client";
-import { ProductCard } from "@/components/products/ProductCard";
+import { ProductCard } from "@/components/main/products/ProductCard";
 import { Button } from "@/components/ui/button";
 import {
   Select,

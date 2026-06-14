@@ -11,7 +11,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
-import { OrderTimeline } from "./OrderTimeline";
+import { OrderTimeline } from "../main/OrderTimeline";
 
 const statusConfig: Record<
   string,

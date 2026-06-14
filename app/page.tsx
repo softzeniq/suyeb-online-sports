@@ -1,4 +1,4 @@
-import HomeTemplate from "@/components/home/Home";
+import HomeTemplate from "@/components/main/home/Home";
 
 export default function Home() {
   const sections = [

@@ -1,4 +1,4 @@
-import AdminShippingZones from "@/components/admin/ShippingZones";
+import AdminShippingZones from "@/components/admin/store/ShippingZones";
 
 export default function page() {
   return (

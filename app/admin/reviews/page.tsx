@@ -1,4 +1,4 @@
-import AdminReviews from "@/components/admin/Reviews";
+import AdminReviews from "@/components/admin/store/Reviews";
 
 export default function page() {
   return (

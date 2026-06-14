@@ -1,4 +1,4 @@
-import AdminOrders from "@/components/admin/Orders";
+import AdminOrders from "@/components/admin/main/Orders";
 
 export default function page() {
   return (

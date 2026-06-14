@@ -1,5 +1,5 @@
 "use client";
-import { ProductCard } from "@/components/products/ProductCard";
+import { ProductCard } from "@/components/main/products/ProductCard";
 import { useCategory, useProductsByCategory } from "@/hooks/useShopData";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";

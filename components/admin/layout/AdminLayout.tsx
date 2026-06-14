@@ -15,7 +15,8 @@ interface Props {
 export function AdminLayout({ children }: Props) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const isLoginPage = pathname === "/admin/login" || pathname === "/admin/register";
+  const isLoginPage =
+    pathname === "/admin/login" || pathname === "/admin/register";
 
   if (isLoginPage) {
     return <>{children}</>;

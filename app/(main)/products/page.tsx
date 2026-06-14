@@ -1,4 +1,4 @@
-import ShopPage from "@/components/shop/Shop";
+import ShopPage from "@/components/main/Shop";
 
 export default function page() {
   return (

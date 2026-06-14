@@ -1,4 +1,4 @@
-import PrivacyPage from "@/components/privacy/Privacy";
+import PrivacyPage from "@/components/main/Privacy";
 
 export default function page() {
   return (

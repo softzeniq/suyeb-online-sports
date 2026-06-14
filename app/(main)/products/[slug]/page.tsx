@@ -1,8 +1,8 @@
-import { ProductCard } from "@/components/products/ProductCard";
-import { VariantSelector } from "@/components/products/VariantSelector";
-import { WishlistButton } from "@/components/products/WishlistButton";
-import { ReviewForm } from "@/components/reviews/ReviewForm";
-import { ReviewList } from "@/components/reviews/ReviewList";
+import { ProductCard } from "@/components/main/products/ProductCard";
+import { VariantSelector } from "@/components/main/products/VariantSelector";
+import { WishlistButton } from "@/components/main/products/WishlistButton";
+import { ReviewForm } from "@/components/main/ReviewForm";
+import { ReviewList } from "@/components/main/ReviewList";
 import {
   Accordion,
   AccordionContent,

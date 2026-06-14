@@ -42,8 +42,8 @@ import { Edit, MoreHorizontal, Plus, Search, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { CsvProductUpload } from "./CsvProductUpload";
-import { MultiImageUpload } from "./ImageUpload";
+import { CsvProductUpload } from "../CsvProductUpload";
+import { MultiImageUpload } from "../ImageUpload";
 import { ProductVariantManager } from "./ProductVariantManager";
 
 const generateSlug = (name: string) => {

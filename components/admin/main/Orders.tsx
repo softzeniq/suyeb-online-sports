@@ -30,7 +30,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { PrintModal } from "./PrintModel";
+import { PrintModal } from "../PrintModel";
 
 const statusOptions = [
   "pending",

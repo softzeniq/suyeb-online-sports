@@ -1,4 +1,4 @@
-import AdminSlider from "@/components/admin/Slider";
+import AdminSlider from "@/components/admin/store/Slider";
 
 export default function page() {
   return (

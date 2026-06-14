@@ -1,4 +1,4 @@
-import AdminSettings from "@/components/admin/settings/Settings";
+import AdminSettings from "@/components/admin/system/settings/Settings";
 
 export default function page() {
   return (

@@ -18,7 +18,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { CouponInput } from "./CouponInput";
+import { CouponInput } from "../checkout/CouponInput";
 
 export default function CheckoutPage() {
   const router = useRouter();

@@ -1,4 +1,4 @@
-import AdminCourierSettings from "@/components/admin/CourierSettings";
+import AdminCourierSettings from "@/components/admin/system/CourierSettings";
 
 export default function page() {
   return (

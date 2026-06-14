@@ -1,4 +1,4 @@
-import AdminCategories from "@/components/admin/Categories";
+import AdminCategories from "@/components/admin/main/Categories";
 
 export default function page() {
   return (

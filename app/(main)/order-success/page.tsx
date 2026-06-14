@@ -1,4 +1,4 @@
-import OrderSuccessPage from "@/components/orderSuccess/OrderSuccess";
+import OrderSuccessPage from "@/components/main/OrderSuccess";
 
 export default function page() {
   return (

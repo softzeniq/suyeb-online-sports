@@ -73,7 +73,9 @@ export function AdminHeader() {
               {userRole && (
                 <p className="text-xs text-muted-foreground">
                   {" "}
-                  {userRole in ROLE_LABELS ? ROLE_LABELS[userRole as UserRole] : userRole}
+                  {userRole in ROLE_LABELS
+                    ? ROLE_LABELS[userRole as UserRole]
+                    : userRole}
                 </p>
               )}
             </div>

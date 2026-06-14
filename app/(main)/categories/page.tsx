@@ -1,4 +1,4 @@
-import CategoriesPage from "@/components/categories/Categories";
+import CategoriesPage from "@/components/main/Categories";
 
 export default function page() {
   return (

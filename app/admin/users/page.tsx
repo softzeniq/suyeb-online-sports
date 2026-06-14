@@ -1,4 +1,4 @@
-import AdminUsers from "@/components/admin/Users";
+import AdminUsers from "@/components/admin/system/Users";
 
 export default function page() {
   return (

@@ -1,4 +1,4 @@
-import AdminShippingMethods from "@/components/admin/ShippingMethods";
+import AdminShippingMethods from "@/components/admin/store/ShippingMethods";
 
 export default function page() {
   return (

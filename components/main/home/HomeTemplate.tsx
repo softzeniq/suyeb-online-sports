@@ -1,10 +1,10 @@
 "use client";
-import { BestSellers } from "@/components/home/BestSellers";
-import { FeaturedCategories } from "@/components/home/FeaturedCategories";
-import { FeaturedProducts } from "@/components/home/FeaturedProducts";
-import { HeroSlider } from "@/components/home/HeroSlider";
+import { BestSellers } from "@/components/main/home/BestSellers";
+import { FeaturedCategories } from "@/components/main/home/FeaturedCategories";
+import { FeaturedProducts } from "@/components/main/home/FeaturedProducts";
+import { HeroSlider } from "@/components/main/home/HeroSlider";
 
-import { ProductCard } from "@/components/products/ProductCard";
+import { ProductCard } from "@/components/main/products/ProductCard";
 import { HomepageSection } from "@/hooks/useHomePageTemplates";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useNewArrivals } from "@/hooks/useShopData";
