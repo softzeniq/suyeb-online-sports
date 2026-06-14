@@ -1,6 +1,9 @@
+import AdminCheckoutLeads from "@/components/admin/CheckoutLeads";
 
 export default function page() {
   return (
-    <div>page</div>
-  )
+    <div>
+      <AdminCheckoutLeads />
+    </div>
+  );
 }

@@ -49,7 +49,7 @@ export const ADMIN_NAVIGATION: AdminNavItem[] = [
   },
   {
     name: "Checkout Leads",
-    href: "/admin/leads",
+    href: "/admin/checkout-leads",
     icon: Users,
     roles: ["admin", "manager"],
     section: "Main",
