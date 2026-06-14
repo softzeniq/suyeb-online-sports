@@ -1,6 +1,9 @@
+import AdminReviews from "@/components/admin/Reviews";
 
 export default function page() {
   return (
-    <div>page</div>
-  )
+    <div>
+      <AdminReviews />
+    </div>
+  );
 }
