@@ -28,7 +28,7 @@ export function Header() {
 
   const navigation = [
     { name: t("nav.home"), href: "/" },
-    { name: t("nav.shop"), href: "/products" },
+    { name: t("nav.shop"), href: "/shop" },
     { name: t("nav.categories"), href: "/categories" },
     { name: t("nav.about"), href: "/about" },
     { name: t("nav.contact"), href: "/contact" },
@@ -63,9 +63,8 @@ export function Header() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`text-xl font-semibold transition-colors hover:text-accent ${
-                      pathname === item.href ? "text-accent" : "text-foreground"
-                    }`}
+                    className={`text-xl font-semibold transition-colors hover:text-accent ${pathname === item.href ? "text-accent" : "text-foreground"
+                      }`}
                   >
                     {item.name}
                   </Link>
@@ -104,9 +103,8 @@ export function Header() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`text-lg font-semibold tracking-wide uppercase transition-colors hover:text-accent ${
-                  pathname === item.href ? "text-accent" : "text-foreground"
-                }`}
+                className={`text-lg font-semibold tracking-wide uppercase transition-colors hover:text-accent ${pathname === item.href ? "text-accent" : "text-foreground"
+                  }`}
               >
                 {item.name}
               </Link>
