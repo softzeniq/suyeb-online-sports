@@ -34,12 +34,9 @@ function NewArrivalsSection({ section }: { section: HomepageSection }) {
           className={`flex items-center justify-between mb-8 reveal-left ${isVisible ? "reveal-visible" : ""}`}
         >
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold">
+            <h2 className="text-xl md:text-2xl">
               {section.title || "New Arrivals"}
             </h2>
-            <p className="text-muted-foreground mt-1">
-              {section.subtitle || "Fresh styles just landed"}
-            </p>
           </div>
           <Link
             href="/products?filter=new"
@@ -48,7 +45,7 @@ function NewArrivalsSection({ section }: { section: HomepageSection }) {
             View All <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-        <div className="product-grid">
+        <div className="product-grid product-grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
           {newArrivals.map((product, index) => (
             <div
               key={product.id}
@@ -64,9 +61,25 @@ function NewArrivalsSection({ section }: { section: HomepageSection }) {
 }
 
 export function DefaultHomepage({ sections }: { sections: HomepageSection[] }) {
+  // Only allow specified sections and prevent duplicates
+  const seen = new Set<string>();
+  const allowedSections = sections.filter((section) => {
+    const allowedTypes = [
+      "hero_slider",
+      "featured_categories",
+      "featured_products",
+      "new_arrivals",
+      "best_sellers",
+    ];
+    if (!allowedTypes.includes(section.section_type)) return false;
+    if (seen.has(section.section_type)) return false;
+    seen.add(section.section_type);
+    return true;
+  });
+
   return (
     <>
-      {sections.map((section) => {
+      {allowedSections.map((section) => {
         if (section.section_type === "new_arrivals") {
           return <NewArrivalsSection key={section.id} section={section} />;
         }

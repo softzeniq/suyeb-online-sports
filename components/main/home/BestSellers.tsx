@@ -17,12 +17,9 @@ export function BestSellers() {
         <div className="container-shop">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold">
+              <h2 className="text-xl md:text-2xl">
                 {t("home.bestSellers")}
               </h2>
-              <p className="text-muted-foreground mt-1">
-                Customer favorites this month
-              </p>
             </div>
           </div>
           <div className="product-grid">
@@ -47,12 +44,9 @@ export function BestSellers() {
           className={`flex items-center justify-between mb-8 reveal-left ${isVisible ? "reveal-visible" : ""}`}
         >
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold">
+            <h2 className="text-xl md:text-2xl">
               {t("home.bestSellers")}
             </h2>
-            <p className="text-muted-foreground mt-1">
-              Customer favorites this month
-            </p>
           </div>
           <Link
             href="/products?filter=bestsellers"
@@ -62,7 +56,7 @@ export function BestSellers() {
           </Link>
         </div>
 
-        <div className="product-grid">
+        <div className="product-grid product-grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
           {products.map((product, index) => (
             <div
               key={product.id}

@@ -11,27 +11,56 @@ export function FeaturedCategories() {
   const { t } = useSiteSettings();
   const { ref: sectionRef, isVisible } = useScrollReveal();
 
+  // Split categories for 2 independent scrolling rows on mobile
+  const midIndex = Math.ceil(categories.length / 2);
+  const mobileRow1 = categories.slice(0, midIndex);
+  const mobileRow2 = categories.slice(midIndex);
+
   if (isLoading) {
     return (
       <section className="section-padding">
         <div className="container-shop">
           <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold">
-                {t("home.shopByCategory")}
-              </h2>
-              <p className="text-muted-foreground mt-1">
-                Find what you're looking for
-              </p>
-            </div>
+            <h2 className="text-xl md:text-3xl tracking-tight">
+              {t("home.shopByCategory") || "Categories"}
+            </h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {[1, 2, 3, 4].map((i) => (
+          {/* Desktop Loading Skeleton */}
+          <div className="hidden md:grid grid-cols-4 lg:grid-cols-8 bg-border gap-[1px] border border-border rounded-xl overflow-hidden shadow-sm animate-pulse">
+            {Array.from({ length: 16 }).map((_, i) => (
               <div
                 key={i}
-                className="aspect-square rounded-xl bg-muted animate-pulse"
-              />
+                className="bg-background p-4 flex flex-col items-center justify-center gap-3 aspect-[5/6]"
+              >
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-muted rounded-md" />
+                <div className="h-4 w-16 bg-muted rounded" />
+              </div>
             ))}
+          </div>
+          {/* Mobile Loading Skeleton */}
+          <div className="flex md:hidden flex-col gap-3">
+            <div className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-none animate-pulse">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex-shrink-0 w-24 bg-muted/20 border border-border rounded-xl p-3 flex flex-col items-center justify-center gap-2 aspect-square"
+                >
+                  <div className="w-10 h-10 bg-muted rounded-full" />
+                  <div className="h-3 w-12 bg-muted rounded" />
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-none animate-pulse">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex-shrink-0 w-24 bg-muted/20 border border-border rounded-xl p-3 flex flex-col items-center justify-center gap-2 aspect-square"
+                >
+                  <div className="w-10 h-10 bg-muted rounded-full" />
+                  <div className="h-3 w-12 bg-muted rounded" />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -45,51 +74,104 @@ export function FeaturedCategories() {
           className={`flex items-center justify-between mb-8 reveal-left ${isVisible ? "reveal-visible" : ""}`}
         >
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold">
-              {t("home.shopByCategory")}
+            <h2 className="text-xl md:text-2xl tracking-tight">
+              {t("home.shopByCategory") || "Categories"}
             </h2>
-            <p className="text-muted-foreground mt-1">
-              Find what you're looking for
-            </p>
           </div>
           <Link
             href="/categories"
-            className="hidden sm:flex items-center gap-2 text-sm font-medium text-accent hover:underline"
+            className="flex items-center gap-2 text-sm font-semibold text-accent hover:underline"
           >
             {t("common.viewAll")} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {categories.slice(0, 8).map((category, index) => (
+        {/* Desktop View: 16-Grid Table-like Border Layout */}
+        <div className="hidden md:grid grid-cols-4 lg:grid-cols-8 bg-border gap-[1px] border border-border rounded-xl overflow-hidden shadow-sm">
+          {categories.slice(0, 16).map((category, index) => (
             <Link
               key={category.id}
               href={`/category/${category.slug}`}
-              className={`category-card group reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""}`}
+              className={`group bg-background p-4 flex flex-col items-center justify-center gap-4 aspect-[5/6] transition-all duration-300 hover:bg-muted/30 reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""
+                }`}
             >
-              <Image
-                src={category.image}
-                alt={category.name}
-                height={400}
-                width={400}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              />
-              <div className="category-card-content">
-                <h3 className="text-lg md:text-xl font-semibold">
-                  {category.name}
-                </h3>
+              {/* Category Image Box */}
+              <div className="relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 select-none">
+                <Image
+                  src={category.image}
+                  alt={category.name}
+                  fill
+                  className="object-contain rounded-md"
+                  sizes="(max-width: 768px) 80px, 120px"
+                />
               </div>
+
+              {/* Category Name */}
+              <span className="text-xs md:text-sm font-semibold tracking-tight text-center text-foreground/95 group-hover:text-accent transition-colors line-clamp-2 px-1 max-w-[95%]">
+                {category.name}
+              </span>
             </Link>
           ))}
         </div>
 
-        <Link
-          href="/categories"
-          className="mt-6 flex sm:hidden items-center justify-center gap-2 text-sm font-medium text-accent hover:underline"
-        >
-          {t("common.viewAll")} {t("nav.categories")}{" "}
-          <ArrowRight className="h-4 w-4" />
-        </Link>
+        {/* Mobile View: 2-Row Independent Horizontal Scroll Slide */}
+        <div className="flex md:hidden flex-col gap-3">
+          {/* Row 1 */}
+          <div className="flex items-center gap-3 overflow-x-auto pb-1 px-1 scrollbar-none snap-x snap-mandatory scroll-smooth w-full select-none">
+            {mobileRow1.map((category, index) => (
+              <Link
+                key={category.id}
+                href={`/category/${category.slug}`}
+                className={`flex-shrink-0 w-24 bg-background border border-border/80 rounded-xl p-3 flex flex-col items-center justify-center gap-2 aspect-square snap-start shadow-sm active:scale-95 transition-all duration-300 hover:border-accent/30 reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""
+                  }`}
+              >
+                {/* Image Box */}
+                <div className="relative w-10 h-10 flex items-center justify-center select-none">
+                  <Image
+                    src={category.image}
+                    alt={category.name}
+                    fill
+                    className="object-contain rounded-md"
+                    sizes="40px"
+                  />
+                </div>
+
+                {/* Name */}
+                <span className="text-[10px] font-bold tracking-tight text-center text-foreground/90 line-clamp-2 px-0.5 leading-tight">
+                  {category.name}
+                </span>
+              </Link>
+            ))}
+          </div>
+
+          {/* Row 2 */}
+          <div className="flex items-center gap-3 overflow-x-auto pb-1 px-1 scrollbar-none snap-x snap-mandatory scroll-smooth w-full select-none">
+            {mobileRow2.map((category, index) => (
+              <Link
+                key={category.id}
+                href={`/category/${category.slug}`}
+                className={`flex-shrink-0 w-24 bg-background border border-border/80 rounded-xl p-3 flex flex-col items-center justify-center gap-2 aspect-square snap-start shadow-sm active:scale-95 transition-all duration-300 hover:border-accent/30 reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""
+                  }`}
+              >
+                {/* Image Box */}
+                <div className="relative w-10 h-10 flex items-center justify-center select-none">
+                  <Image
+                    src={category.image}
+                    alt={category.name}
+                    fill
+                    className="object-contain rounded-md"
+                    sizes="40px"
+                  />
+                </div>
+
+                {/* Name */}
+                <span className="text-[10px] font-bold tracking-tight text-center text-foreground/90 line-clamp-2 px-0.5 leading-tight">
+                  {category.name}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

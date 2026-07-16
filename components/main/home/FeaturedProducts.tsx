@@ -17,12 +17,9 @@ export function FeaturedProducts() {
         <div className="container-shop">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold">
+              <h2 className="text-xl md:text-2xl">
                 {t("home.featuredProducts")}
               </h2>
-              <p className="text-muted-foreground mt-1">
-                Handpicked just for you
-              </p>
             </div>
           </div>
           <div className="product-grid">
@@ -47,22 +44,19 @@ export function FeaturedProducts() {
           className={`flex items-center justify-between mb-8 reveal-left ${isVisible ? "reveal-visible" : ""}`}
         >
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold">
+            <h2 className="text-xl md:text-2xl">
               {t("home.featuredProducts")}
             </h2>
-            <p className="text-muted-foreground mt-1">
-              Handpicked just for you
-            </p>
           </div>
           <Link
             href="/products"
-            className="hidden sm:flex items-center gap-2 text-sm font-medium text-accent hover:underline"
+            className="hidden sm:flex items-center text-sm font-medium text-accent hover:underline"
           >
             {t("common.viewAll")} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
-        <div className="product-grid">
+        <div className="product-grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
           {products.map((product, index) => (
             <div
               key={product.id}
