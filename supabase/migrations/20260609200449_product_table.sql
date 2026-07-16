@@ -37,7 +37,7 @@ ALTER TABLE public.products ADD COLUMN is_variable boolean NOT NULL DEFAULT fals
 ALTER TABLE public.product_variants ADD COLUMN variant_price numeric NULL;
 
 
-ALTER TABLE public.products ADD COLUMN hide_stock boolean NOT NULL DEFAULT false;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS hide_stock BOOLEAN NOT NULL DEFAULT false;
 
 ALTER TABLE public.product_variants ADD COLUMN variant_sale_price numeric NULL;
 

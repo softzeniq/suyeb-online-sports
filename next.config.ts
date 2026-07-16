@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "steadfast.com.bd",
       },
+      {
+        protocol: "https",
+        hostname: "iqrzobjdevbhhmvsvted.supabase.co",
+      },
     ],
   },
 };

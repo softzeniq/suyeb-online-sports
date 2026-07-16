@@ -1,6 +1,9 @@
+import AdminRegisterPage from "@/components/admin/AdminRegister";
 
 export default function page() {
   return (
-    <div>page</div>
-  )
+    <div>
+      <AdminRegisterPage />
+    </div>
+  );
 }
