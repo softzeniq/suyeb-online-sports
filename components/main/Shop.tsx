@@ -18,15 +18,21 @@ import {
 import { useCategories, useProducts } from "@/hooks/useShopData";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function ShopPage() {
   //   const [searchParams, setSearchParams] = useSearchParams();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  
+  // Sync search query from URL parameter
+  useEffect(() => {
+    setSearchQuery(searchParams.get("search") || "");
+  }, [searchParams]);
+
   const [sortBy, setSortBy] = useState<string>("newest");
 
   const { data: products = [], isLoading: productsLoading } = useProducts();

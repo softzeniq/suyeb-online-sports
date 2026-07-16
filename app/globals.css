@@ -85,6 +85,14 @@ body {
 
 @layer base {
   :root {
+    /* Centralized Layout and Spacing Variables */
+    --content-max-width: 1280px;
+    --content-padding-x: 1rem;
+    --content-padding-x-sm: 1.5rem;
+    --content-padding-x-lg: 2rem;
+    --font-family-base: var(--font-inter), system-ui, -apple-system, sans-serif;
+    --font-family-heading: var(--font-sora), system-ui, -apple-system, sans-serif;
+
     /* Base colors - Warm off-white and charcoal */
     --background: 40 20% 98%;
     --foreground: 220 20% 12%;
@@ -109,8 +117,8 @@ body {
     --muted: 40 10% 92%;
     --muted-foreground: 220 10% 45%;
 
-    /* Accent - Coral for CTAs and highlights */
-    --accent: 12 80% 60%;
+    /* Accent - Emerald Green for CTAs and highlights */
+    --accent: 142 70% 35%;
     --accent-foreground: 0 0% 100%;
 
     /* Destructive */
@@ -120,7 +128,7 @@ body {
     /* Border and inputs */
     --border: 40 10% 88%;
     --input: 40 10% 88%;
-    --ring: 12 80% 60%;
+    --ring: 142 70% 35%;
 
     --radius: 0.5rem;
 
@@ -167,7 +175,7 @@ body {
     --sidebar-accent: 40 10% 94%;
     --sidebar-accent-foreground: 220 20% 12%;
     --sidebar-border: 40 10% 88%;
-    --sidebar-ring: 12 80% 60%;
+    --sidebar-ring: 142 70% 35%;
   }
 
   .dark {
@@ -189,7 +197,7 @@ body {
     --muted: 220 15% 20%;
     --muted-foreground: 40 10% 60%;
 
-    --accent: 12 80% 55%;
+    --accent: 142 70% 45%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 45%;
@@ -197,16 +205,16 @@ body {
 
     --border: 220 15% 20%;
     --input: 220 15% 20%;
-    --ring: 12 80% 55%;
+    --ring: 142 70% 45%;
 
     --sidebar-background: 220 20% 10%;
     --sidebar-foreground: 40 20% 96%;
-    --sidebar-primary: 12 80% 55%;
+    --sidebar-primary: 142 70% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 15% 18%;
     --sidebar-accent-foreground: 40 20% 96%;
     --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 12 80% 55%;
+    --sidebar-ring: 142 70% 45%;
   }
   * {
     @apply border-border outline-ring/50;
@@ -226,6 +234,7 @@ body {
 
   html {
     scroll-behavior: smooth;
+    font-family: var(--font-family-base);
   }
 
   body {
@@ -233,6 +242,10 @@ body {
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-heading);
   }
 }
 
@@ -290,7 +303,23 @@ body {
 
   /* Container widths */
   .container-shop {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    max-width: var(--content-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--content-padding-x);
+    padding-right: var(--content-padding-x);
+  }
+  @media (min-width: 640px) {
+    .container-shop {
+      padding-left: var(--content-padding-x-sm);
+      padding-right: var(--content-padding-x-sm);
+    }
+  }
+  @media (min-width: 1024px) {
+    .container-shop {
+      padding-left: var(--content-padding-x-lg);
+      padding-right: var(--content-padding-x-lg);
+    }
   }
 
   /* Grid layouts */
