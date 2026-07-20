@@ -17,17 +17,17 @@ export function CustomerReviews() {
 
   return (
     <section
-      className="section-padding bg-primary text-primary-foreground"
+      className="section-padding bg-muted/40 border-y border-border/50 text-foreground"
       ref={ref}
     >
       <div className="container-shop">
         <div
           className={`text-center mb-12 reveal-base ${isVisible ? "reveal-visible" : ""}`}
         >
-          <h2 className="text-2xl md:text-3xl font-bold">
+          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">
             What Our Customers Say
           </h2>
-          <p className="text-primary-foreground/70 mt-2">
+          <p className="text-muted-foreground mt-2 text-sm">
             Real reviews from real customers
           </p>
         </div>
@@ -42,28 +42,28 @@ export function CustomerReviews() {
                 key={review.id}
                 className="pl-4 md:basis-1/2 lg:basis-1/3"
               >
-                <div className="bg-primary-foreground/5 backdrop-blur-sm rounded-xl p-6 border border-primary-foreground/10 h-full flex flex-col">
-                  <Quote className="h-8 w-8 text-accent mb-4 shrink-0" />
-                  <p className="text-primary-foreground/90 mb-6 leading-relaxed flex-1">
+                <div className="bg-background rounded-2xl p-6 border border-border/50 shadow-sm h-full flex flex-col">
+                  <Quote className="h-8 w-8 text-accent/20 mb-4 shrink-0" />
+                  <p className="text-foreground/90 mb-6 leading-relaxed flex-1 text-sm">
                     "{review.text}"
                   </p>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-auto">
                     <div>
-                      <p className="font-semibold">{review.name}</p>
+                      <p className="font-semibold text-sm text-foreground/90">{review.name}</p>
                       <div className="flex gap-0.5 mt-1">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star
                             key={i}
-                            className={`h-4 w-4 ${
+                            className={`h-3.5 w-3.5 ${
                               i < review.rating
                                 ? "text-accent fill-accent"
-                                : "text-primary-foreground/30"
+                                : "text-muted"
                             }`}
                           />
                         ))}
                       </div>
                     </div>
-                    <p className="text-sm text-primary-foreground/50">
+                    <p className="text-xs text-muted-foreground">
                       {new Date(review.created_at).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
@@ -76,8 +76,8 @@ export function CustomerReviews() {
             ))}
           </CarouselContent>
           <div className="flex justify-center gap-4 mt-8">
-            <CarouselPrevious className="static translate-y-0 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20" />
-            <CarouselNext className="static translate-y-0 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20" />
+            <CarouselPrevious className="static translate-y-0 bg-background border-border text-foreground hover:bg-muted" />
+            <CarouselNext className="static translate-y-0 bg-background border-border text-foreground hover:bg-muted" />
           </div>
         </Carousel>
       </div>

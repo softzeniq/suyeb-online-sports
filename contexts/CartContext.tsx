@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useEffect, useReducer } from "react";
+import React, { createContext, useContext, useEffect, useReducer, useState } from "react";
 
 export interface CartItem {
   id: string;
@@ -102,6 +102,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     items: [],
     isOpen: false,
   });
+  const [isInitiated, setIsInitiated] = useState(false);
 
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
@@ -113,11 +114,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         console.error("Failed to parse cart from localStorage");
       }
     }
+    setIsInitiated(true);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(state.items));
-  }, [state.items]);
+    if (isInitiated) {
+      localStorage.setItem("cart", JSON.stringify(state.items));
+    }
+  }, [state.items, isInitiated]);
 
   const addItem = (item: CartItem) =>
     dispatch({ type: "ADD_ITEM", payload: item });

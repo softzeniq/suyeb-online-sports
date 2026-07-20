@@ -56,7 +56,7 @@ export function BestSellers() {
           </Link>
         </div>
 
-        <div className="product-grid product-grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+        <div className="product-grid product-grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-3">
           {products.map((product, index) => (
             <div
               key={product.id}

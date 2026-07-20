@@ -1,3 +1,4 @@
+"use client";
 import LandingPageView from "@/components/LandingPage/LandingPage";
 import { useParams } from "next/navigation";
 

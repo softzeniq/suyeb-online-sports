@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { ArrowRight, CheckCircle, Package } from "lucide-react";

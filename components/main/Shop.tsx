@@ -1,5 +1,7 @@
 "use client";
+
 import { ProductCard } from "@/components/main/products/ProductCard";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -15,242 +17,670 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useCategories, useProducts } from "@/hooks/useShopData";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
+import {
+  useCategories,
+  useCategoryProductCounts,
+  useFilteredShopProducts,
+} from "@/hooks/useShopData";
+import {
+  ArrowUpDown,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  Flame,
+  Grid2X2,
+  Grid3X3,
+  Home,
+  LayoutGrid,
+  List,
+  Package,
+  RotateCcw,
+  Search,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles,
+  Tag,
+  Truck,
+  X,
+} from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 export default function ShopPage() {
-  //   const [searchParams, setSearchParams] = useSearchParams();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const { formatCurrency } = useSiteSettings();
+
+  // Filter States
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  
-  // Sync search query from URL parameter
-  useEffect(() => {
-    setSearchQuery(searchParams.get("search") || "");
-  }, [searchParams]);
-
+  const [selectedStatus, setSelectedStatus] = useState<string>(
+    searchParams.get("filter") || "all"
+  );
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<string>("newest");
 
-  const { data: products = [], isLoading: productsLoading } = useProducts();
-  const { data: categories = [], isLoading: categoriesLoading } =
-    useCategories();
+  // Layout & Pagination States
+  const [gridCols, setGridCols] = useState<"2" | "3" | "4" | "list">("3");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 12;
 
-  const filteredProducts = useMemo(() => {
-    let filtered = [...products];
-
-    // Search filter
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (p) =>
-          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (p.description?.toLowerCase().includes(searchQuery.toLowerCase()) ??
-            false),
-      );
+  // Sync search query and URL filter parameter
+  useEffect(() => {
+    setSearchQuery(searchParams.get("search") || "");
+    const urlFilter = searchParams.get("filter");
+    if (urlFilter && ["sale", "new", "bestsellers"].includes(urlFilter)) {
+      setSelectedStatus(urlFilter);
     }
+  }, [searchParams]);
 
-    // Category filter
-    if (selectedCategory !== "all") {
-      const category = categories.find((c) => c.slug === selectedCategory);
-      if (category) {
-        filtered = filtered.filter((p) => p.category_id === category.id);
-      }
-    }
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, selectedStatus, minPrice, maxPrice, inStockOnly, sortBy]);
 
-    // URL params filter
-    const filter = searchParams.get("filter");
-    if (filter === "new") {
-      filtered = filtered.filter((p) => p.is_new);
-    } else if (filter === "bestsellers") {
-      filtered = filtered.filter((p) => p.is_best_seller);
-    } else if (filter === "sale") {
-      filtered = filtered.filter((p) => p.sale_price);
-    }
+  // Parse numeric price parameters
+  const numMinPrice = minPrice !== "" && !isNaN(Number(minPrice)) ? Number(minPrice) : null;
+  const numMaxPrice = maxPrice !== "" && !isNaN(Number(maxPrice)) ? Number(maxPrice) : null;
 
-    // Sort
-    switch (sortBy) {
-      case "price-low":
-        filtered.sort(
-          (a, b) => (a.sale_price ?? a.price) - (b.sale_price ?? b.price),
-        );
-        break;
-      case "price-high":
-        filtered.sort(
-          (a, b) => (b.sale_price ?? b.price) - (a.sale_price ?? a.price),
-        );
-        break;
-      case "newest":
-      default:
-        filtered.sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-        );
-        break;
-    }
-
-    return filtered;
-  }, [
+  // Backend Supabase Queries
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+  const { data: categoryCounts = {} } = useCategoryProductCounts();
+  const { data, isLoading: productsLoading } = useFilteredShopProducts({
     searchQuery,
-    selectedCategory,
+    categorySlug: selectedCategory,
+    statusFilter: selectedStatus,
+    minPrice: numMinPrice,
+    maxPrice: numMaxPrice,
+    inStockOnly,
     sortBy,
-    searchParams,
-    products,
-    categories,
-  ]);
+    page: currentPage,
+    limit: itemsPerPage,
+  });
+
+  const products = data?.products || [];
+  const totalProductsCount = data?.totalCount || 0;
+  const totalPages = Math.ceil(totalProductsCount / itemsPerPage);
 
   const isLoading = productsLoading || categoriesLoading;
 
+  // Active filter count calculation
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (searchQuery) count++;
+    if (selectedCategory !== "all") count++;
+    if (selectedStatus !== "all") count++;
+    if (minPrice !== "" || maxPrice !== "") count++;
+    if (inStockOnly) count++;
+    return count;
+  }, [searchQuery, selectedCategory, selectedStatus, minPrice, maxPrice, inStockOnly]);
+
+  const handleClearAllFilters = () => {
+    setSelectedCategory("all");
+    setSelectedStatus("all");
+    setSearchQuery("");
+    setMinPrice("");
+    setMaxPrice("");
+    setInStockOnly(false);
+    setSortBy("newest");
+    setCurrentPage(1);
+    router.replace(pathname);
+  };
+
+  // Sidebar Filter Component
   const FilterContent = () => (
     <div className="space-y-6">
       {/* Categories */}
-      <div>
-        <h3 className="font-bold text-sm uppercase tracking-wider mb-4 text-foreground">
-          Categories
-        </h3>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <Tag className="h-3.5 w-3.5" />
+            Categories
+          </h3>
+        </div>
         <div className="space-y-1">
           <button
             onClick={() => setSelectedCategory("all")}
-            className={`block w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-              selectedCategory === "all"
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-            }`}
-          >
-            All Products
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.slug)}
-              className={`block w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-                selectedCategory === cat.slug
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+            className={`flex items-center justify-between w-full px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCategory === "all"
+              ? "bg-accent text-accent-foreground shadow-sm font-semibold"
+              : "text-foreground/80 hover:bg-secondary hover:text-foreground"
               }`}
-            >
-              {cat.name}
-            </button>
-          ))}
+          >
+            <span>All Products</span>
+          </button>
+          {categories.map((cat) => {
+            const count = categoryCounts[cat.id] || 0;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.slug)}
+                className={`flex items-center justify-between w-full px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCategory === cat.slug
+                  ? "bg-accent text-accent-foreground shadow-sm font-semibold"
+                  : "text-foreground/80 hover:bg-secondary hover:text-foreground"
+                  }`}
+              >
+                <span className="truncate pr-2">{cat.name}</span>
+                {count > 0 && (
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${selectedCategory === cat.slug
+                      ? "bg-accent-foreground/20 text-accent-foreground"
+                      : "bg-muted text-muted-foreground"
+                      }`}
+                  >
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Clear Filters */}
-      <Button
-        variant="outline"
-        className="w-full rounded-xl"
-        onClick={() => {
-          setSelectedCategory("all");
-          setSearchQuery("");
-          router.replace(pathname);
-        }}
-      >
-        Clear All Filters
-      </Button>
+      <hr className="border-border/60" />
+
+      {/* Price Range Filter */}
+      <div className="space-y-3">
+        <h3 className="font-bold text-xs uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+          <span>Price Range</span>
+          {(minPrice !== "" || maxPrice !== "") && (
+            <button
+              onClick={() => {
+                setMinPrice("");
+                setMaxPrice("");
+              }}
+              className="text-[11px] text-accent hover:underline lowercase font-normal"
+            >
+              Reset
+            </button>
+          )}
+        </h3>
+
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="text-[11px] text-muted-foreground block mb-1">Min Price</label>
+            <input
+              type="number"
+              placeholder="0"
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+              className="w-full h-9 px-3 text-xs rounded-lg border border-input bg-background focus:outline-none focus:ring-1 focus:ring-accent"
+            />
+          </div>
+          <div>
+            <label className="text-[11px] text-muted-foreground block mb-1">Max Price</label>
+            <input
+              type="number"
+              placeholder="5000"
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              className="w-full h-9 px-3 text-xs rounded-lg border border-input bg-background focus:outline-none focus:ring-1 focus:ring-accent"
+            />
+          </div>
+        </div>
+
+        {/* Quick price presets */}
+        <div className="flex flex-wrap gap-1.5 pt-1">
+          <button
+            onClick={() => {
+              setMinPrice("0");
+              setMaxPrice("1000");
+            }}
+            className="text-[11px] px-2.5 py-1 rounded-md bg-secondary/80 hover:bg-secondary text-foreground/80 transition-colors"
+          >
+            Under ৳1,000
+          </button>
+          <button
+            onClick={() => {
+              setMinPrice("1000");
+              setMaxPrice("3000");
+            }}
+            className="text-[11px] px-2.5 py-1 rounded-md bg-secondary/80 hover:bg-secondary text-foreground/80 transition-colors"
+          >
+            ৳1K - ৳3K
+          </button>
+          <button
+            onClick={() => {
+              setMinPrice("3000");
+              setMaxPrice("");
+            }}
+            className="text-[11px] px-2.5 py-1 rounded-md bg-secondary/80 hover:bg-secondary text-foreground/80 transition-colors"
+          >
+            Over ৳3,000
+          </button>
+        </div>
+      </div>
+
+      <hr className="border-border/60" />
+
+      {/* In Stock Availability Filter */}
+      <div className="space-y-3">
+        <label className="flex items-center gap-2.5 cursor-pointer select-none">
+          <div
+            onClick={() => setInStockOnly(!inStockOnly)}
+            className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${inStockOnly
+              ? "bg-accent border-accent text-accent-foreground"
+              : "border-input bg-background"
+              }`}
+          >
+            {inStockOnly && <Check className="h-3 w-3" />}
+          </div>
+          <span className="text-xs font-medium text-foreground">In Stock Products Only</span>
+        </label>
+      </div>
+
+      {/* Clear All Filters */}
+      {activeFiltersCount > 0 && (
+        <Button
+          variant="outline"
+          className="w-full rounded-xl gap-2 text-xs border-dashed text-destructive hover:text-destructive hover:bg-destructive/10"
+          onClick={handleClearAllFilters}
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+          Clear All Filters ({activeFiltersCount})
+        </Button>
+      )}
     </div>
   );
 
   return (
-    <div className="container-shop section-padding">
-      {/* Header */}
-      <div className="mb-10">
-        <h1 className="text-3xl md:text-4xl font-bold mb-1">Shop</h1>
-        <p className="text-muted-foreground text-sm">
-          {isLoading
-            ? "Loading..."
-            : `${filteredProducts.length} products found`}
-        </p>
-      </div>
+    <div className="bg-background min-h-screen">
+      {/* Top Banner & Breadcrumb Header */}
+      <div className="bg-secondary/40 border-b border-border/60 py-6 md:py-8 mb-6">
+        <div className="container-shop">
+          {/* Breadcrumbs */}
+          <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+            <Link href="/" className="hover:text-foreground flex items-center gap-1 transition-colors">
+              <Home className="h-3.5 w-3.5" />
+              <span>Home</span>
+            </Link>
+            <ChevronRight className="h-3 w-3" />
+            <span className="text-foreground font-medium">Shop</span>
+            {selectedCategory !== "all" && (
+              <>
+                <ChevronRight className="h-3 w-3" />
+                <span className="text-accent font-semibold capitalize">
+                  {categories.find((c) => c.slug === selectedCategory)?.name || selectedCategory}
+                </span>
+              </>
+            )}
+          </nav>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar - Desktop */}
-        <aside className="hidden lg:block w-64 shrink-0">
-          <div className="sticky top-24">
-            <FilterContent />
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <div className="flex-1">
-          {/* Toolbar */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="search"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="input-shop pl-11 rounded-xl"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
-                >
-                  <X className="h-4 w-4 text-muted-foreground" />
-                </button>
-              )}
-            </div>
-
-            {/* Sort */}
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full sm:w-44">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">Newest</SelectItem>
-                <SelectItem value="price-low">Price: Low to High</SelectItem>
-                <SelectItem value="price-high">Price: High to Low</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Mobile Filter Button */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" className="lg:hidden">
-                  <SlidersHorizontal className="h-4 w-4 mr-2" />
-                  Filters
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-80">
-                <SheetHeader>
-                  <SheetTitle>Filters</SheetTitle>
-                </SheetHeader>
-                <div className="mt-6">
-                  <FilterContent />
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-
-          {/* Products Grid */}
-          {isLoading ? (
-            <div className="product-grid">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <div
-                  key={i}
-                  className="aspect-product rounded-xl bg-muted animate-pulse"
-                />
-              ))}
-            </div>
-          ) : filteredProducts.length > 0 ? (
-            <div className="product-grid">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16">
-              <p className="text-muted-foreground text-lg">No products found</p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Try adjusting your filters or search query
+          {/* Title and features badges */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
+                {selectedCategory !== "all"
+                  ? categories.find((c) => c.slug === selectedCategory)?.name || "Shop Collection"
+                  : "All Products"}
+              </h1>
+              <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                Explore our full catalog of premium merchandise and sports apparel.
               </p>
             </div>
-          )}
+
+            {/* Feature Trust Badges */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-background px-3 py-1.5 rounded-full border border-border/80 shadow-xs">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
+                <span>100% Authentic</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-background px-3 py-1.5 rounded-full border border-border/80 shadow-xs">
+                <Truck className="h-3.5 w-3.5 text-accent" />
+                <span>Fast Shipping BD</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Collection Status Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-4 scrollbar-none border-t border-border/40 mt-4">
+            <button
+              onClick={() => setSelectedStatus("all")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${selectedStatus === "all"
+                ? "bg-accent text-accent-foreground shadow-sm font-semibold"
+                : "bg-background border border-border/80 text-foreground/80 hover:bg-secondary"
+                }`}
+            >
+              <span>All Collection</span>
+            </button>
+            <button
+              onClick={() => setSelectedStatus("sale")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${selectedStatus === "sale"
+                ? "bg-amber-500 text-white shadow-sm font-semibold"
+                : "bg-background border border-border/80 text-foreground/80 hover:bg-amber-500/10 hover:text-amber-600"
+                }`}
+            >
+              <Flame className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+              <span>On Sale</span>
+            </button>
+            <button
+              onClick={() => setSelectedStatus("new")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${selectedStatus === "new"
+                ? "bg-blue-600 text-white shadow-sm font-semibold"
+                : "bg-background border border-border/80 text-foreground/80 hover:bg-blue-500/10 hover:text-blue-600"
+                }`}
+            >
+              <Sparkles className="h-3.5 w-3.5 text-blue-500" />
+              <span>New Arrivals</span>
+            </button>
+            <button
+              onClick={() => setSelectedStatus("bestsellers")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${selectedStatus === "bestsellers"
+                ? "bg-emerald-600 text-white shadow-sm font-semibold"
+                : "bg-background border border-border/80 text-foreground/80 hover:bg-emerald-500/10 hover:text-emerald-600"
+                }`}
+            >
+              <Badge className="bg-emerald-500 text-white text-[10px] px-1 py-0 h-4">TOP</Badge>
+              <span>Best Sellers</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="container-shop pb-16">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          {/* Sidebar - Desktop Sticky Pinned Under Header */}
+          <aside className="hidden lg:block w-64 shrink-0 sticky top-20 self-start z-30">
+            <div className="bg-card border border-border/80 rounded-2xl p-5 shadow-xs">
+              <FilterContent />
+            </div>
+          </aside>
+
+          {/* Main Content Area */}
+          <div className="flex-1 min-w-0">
+            {/* Control Bar: Search, Sorting, Grid Density, Mobile Drawer */}
+            <div className="bg-card border border-border/80 rounded-2xl p-3.5 mb-5 shadow-xs flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+              {/* Search Bar */}
+              <div className="relative flex-1">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="search"
+                  placeholder="Search by product name, description, SKU..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full h-10 pl-10 pr-9 text-xs md:text-sm bg-background border border-input rounded-xl focus:outline-none focus:ring-1 focus:ring-accent"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-muted text-muted-foreground"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Controls Group */}
+              <div className="flex items-center gap-2 justify-between md:justify-end">
+                {/* Mobile Filter Button */}
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm" className="lg:hidden gap-1.5 rounded-xl text-xs h-10">
+                      <SlidersHorizontal className="h-3.5 w-3.5 text-accent" />
+                      <span>Filters</span>
+                      {activeFiltersCount > 0 && (
+                        <Badge className="bg-accent text-accent-foreground text-[10px] px-1.5 py-0 h-4">
+                          {activeFiltersCount}
+                        </Badge>
+                      )}
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-80 overflow-y-auto">
+                    <SheetHeader className="pb-4 border-b border-border">
+                      <SheetTitle className="flex items-center gap-2 text-base">
+                        <Filter className="h-4 w-4 text-accent" />
+                        Filter Products
+                      </SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-4 pb-8">
+                      <FilterContent />
+                    </div>
+                  </SheetContent>
+                </Sheet>
+
+                {/* Grid Layout Density Switcher (Desktop/Tablet) */}
+                <div className="hidden sm:flex items-center gap-1 bg-secondary/60 p-1 rounded-xl border border-border/60">
+                  <button
+                    onClick={() => setGridCols("2")}
+                    title="2 Columns Grid"
+                    className={`p-1.5 rounded-lg transition-colors ${gridCols === "2"
+                      ? "bg-background text-accent shadow-xs font-bold"
+                      : "text-muted-foreground hover:text-foreground"
+                      }`}
+                  >
+                    <Grid2X2 className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setGridCols("3")}
+                    title="3 Columns Grid"
+                    className={`p-1.5 rounded-lg transition-colors ${gridCols === "3"
+                      ? "bg-background text-accent shadow-xs font-bold"
+                      : "text-muted-foreground hover:text-foreground"
+                      }`}
+                  >
+                    <Grid3X3 className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setGridCols("4")}
+                    title="4 Columns Grid"
+                    className={`p-1.5 rounded-lg transition-colors ${gridCols === "4"
+                      ? "bg-background text-accent shadow-xs font-bold"
+                      : "text-muted-foreground hover:text-foreground"
+                      }`}
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setGridCols("list")}
+                    title="List View"
+                    className={`p-1.5 rounded-lg transition-colors ${gridCols === "list"
+                      ? "bg-background text-accent shadow-xs font-bold"
+                      : "text-muted-foreground hover:text-foreground"
+                      }`}
+                  >
+                    <List className="h-4 w-4" />
+                  </button>
+                </div>
+
+                {/* Sort Dropdown */}
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-[150px] md:w-[170px] h-10 rounded-xl text-xs">
+                    <div className="flex items-center gap-1.5 truncate">
+                      <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      <SelectValue placeholder="Sort by" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Newest First</SelectItem>
+                    <SelectItem value="price-low">Price: Low to High</SelectItem>
+                    <SelectItem value="price-high">Price: High to Low</SelectItem>
+                    <SelectItem value="bestsellers">Best Sellers</SelectItem>
+                    <SelectItem value="name-asc">Name: A to Z</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Active Filter Badges Bar */}
+            {activeFiltersCount > 0 && (
+              <div className="flex flex-wrap items-center gap-2 mb-4 bg-muted/30 p-2.5 rounded-xl border border-border/50">
+                <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
+                  <Filter className="h-3 w-3" /> Active Filters:
+                </span>
+
+                {searchQuery && (
+                  <Badge variant="secondary" className="gap-1 text-xs py-1 px-2.5 rounded-lg">
+                    <span>Search: "{searchQuery}"</span>
+                    <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => setSearchQuery("")} />
+                  </Badge>
+                )}
+
+                {selectedCategory !== "all" && (
+                  <Badge variant="secondary" className="gap-1 text-xs py-1 px-2.5 rounded-lg">
+                    <span>Category: {categories.find((c) => c.slug === selectedCategory)?.name || selectedCategory}</span>
+                    <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => setSelectedCategory("all")} />
+                  </Badge>
+                )}
+
+                {selectedStatus !== "all" && (
+                  <Badge variant="secondary" className="gap-1 text-xs py-1 px-2.5 rounded-lg">
+                    <span>Type: {selectedStatus}</span>
+                    <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => setSelectedStatus("all")} />
+                  </Badge>
+                )}
+
+                {(minPrice !== "" || maxPrice !== "") && (
+                  <Badge variant="secondary" className="gap-1 text-xs py-1 px-2.5 rounded-lg">
+                    <span>Price: ৳{minPrice || 0} - ৳{maxPrice || "Max"}</span>
+                    <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => { setMinPrice(""); setMaxPrice(""); }} />
+                  </Badge>
+                )}
+
+                {inStockOnly && (
+                  <Badge variant="secondary" className="gap-1 text-xs py-1 px-2.5 rounded-lg">
+                    <span>In Stock Only</span>
+                    <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => setInStockOnly(false)} />
+                  </Badge>
+                )}
+
+                <button
+                  onClick={handleClearAllFilters}
+                  className="text-xs text-accent hover:underline font-medium ml-auto"
+                >
+                  Clear All
+                </button>
+              </div>
+            )}
+
+            {/* Results Count Summary */}
+            <div className="flex items-center justify-between mb-4 px-1">
+              <p className="text-xs text-muted-foreground font-medium">
+                {isLoading ? (
+                  "Loading products..."
+                ) : totalProductsCount > 0 ? (
+                  <>
+                    Showing <span className="text-foreground font-bold">{Math.min((currentPage - 1) * itemsPerPage + 1, totalProductsCount)}</span>–<span className="text-foreground font-bold">{Math.min(currentPage * itemsPerPage, totalProductsCount)}</span> of <span className="text-foreground font-bold">{totalProductsCount}</span> products
+                  </>
+                ) : (
+                  "0 products found"
+                )}
+              </p>
+            </div>
+
+            {/* Product Grid / Skeleton / Empty State */}
+            {isLoading ? (
+              <div
+                className={
+                  gridCols === "list"
+                    ? "space-y-4"
+                    : `grid gap-4 ${gridCols === "2"
+                      ? "grid-cols-2"
+                      : gridCols === "4"
+                        ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
+                        : "grid-cols-2 sm:grid-cols-3"
+                    }`
+                }
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                  <div
+                    key={i}
+                    className="aspect-square rounded-2xl bg-muted/60 animate-pulse border border-border/40"
+                  />
+                ))}
+              </div>
+            ) : products.length > 0 ? (
+              <div
+                className={
+                  gridCols === "list"
+                    ? "space-y-4"
+                    : `grid gap-3 ${gridCols === "2"
+                      ? "grid-cols-2"
+                      : gridCols === "4"
+                        ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
+                        : "grid-cols-2 sm:grid-cols-3"
+                    }`
+                }
+              >
+                {products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            ) : (
+              /* Enhanced Empty State */
+              <div className="bg-card border border-border/80 rounded-2xl p-12 text-center max-w-lg mx-auto my-8 shadow-xs">
+                <div className="w-16 h-16 rounded-full bg-secondary/80 flex items-center justify-center mx-auto mb-4 text-muted-foreground">
+                  <Package className="h-8 w-8 stroke-[1.5]" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-1">No products found</h3>
+                <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
+                  We couldn't find any products matching your selected search terms or filters. Try clearing your filters to see more results.
+                </p>
+                <Button onClick={handleClearAllFilters} className="rounded-xl gap-2 text-xs">
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  Reset All Filters
+                </Button>
+              </div>
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-10">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === 1}
+                  onClick={() => {
+                    setCurrentPage((prev) => Math.max(prev - 1, 1));
+                    window.scrollTo({ top: 200, behavior: "smooth" });
+                  }}
+                  className="rounded-xl text-xs gap-1"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span>Prev</span>
+                </Button>
+
+                <div className="flex items-center gap-1.5">
+                  {Array.from({ length: totalPages }).map((_, idx) => {
+                    const pageNum = idx + 1;
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => {
+                          setCurrentPage(pageNum);
+                          window.scrollTo({ top: 200, behavior: "smooth" });
+                        }}
+                        className={`w-8 h-8 rounded-xl text-xs font-semibold transition-all ${currentPage === pageNum
+                          ? "bg-accent text-accent-foreground shadow-xs"
+                          : "hover:bg-secondary text-foreground/80"
+                          }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === totalPages}
+                  onClick={() => {
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+                    window.scrollTo({ top: 200, behavior: "smooth" });
+                  }}
+                  className="rounded-xl text-xs gap-1"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

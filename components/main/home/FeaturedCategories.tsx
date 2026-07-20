@@ -21,19 +21,19 @@ export function FeaturedCategories() {
       <section className="section-padding">
         <div className="container-shop">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl md:text-3xl tracking-tight">
+            <h2 className="text-xl md:text-2xl tracking-tight">
               {t("home.shopByCategory") || "Categories"}
             </h2>
           </div>
           {/* Desktop Loading Skeleton */}
-          <div className="hidden md:grid grid-cols-4 lg:grid-cols-8 bg-border gap-[1px] border border-border rounded-xl overflow-hidden shadow-sm animate-pulse">
+          <div className="hidden md:grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 md:gap-4 animate-pulse">
             {Array.from({ length: 16 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-background p-4 flex flex-col items-center justify-center gap-3 aspect-[5/6]"
+                className="bg-card border border-border/80 rounded-xl p-4 flex flex-col items-center justify-center gap-3 aspect-square"
               >
-                <div className="w-16 h-16 md:w-20 md:h-20 bg-muted rounded-md" />
-                <div className="h-4 w-16 bg-muted rounded" />
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-muted rounded-full" />
+                <div className="h-3 w-16 bg-muted rounded" />
               </div>
             ))}
           </div>
@@ -43,10 +43,10 @@ export function FeaturedCategories() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="flex-shrink-0 w-24 bg-muted/20 border border-border rounded-xl p-3 flex flex-col items-center justify-center gap-2 aspect-square"
+                  className="flex-shrink-0 w-24 bg-card border border-border/80 rounded-xl p-3 flex flex-col items-center justify-center gap-2 aspect-square"
                 >
                   <div className="w-10 h-10 bg-muted rounded-full" />
-                  <div className="h-3 w-12 bg-muted rounded" />
+                  <div className="h-3.5 w-12 bg-muted rounded" />
                 </div>
               ))}
             </div>
@@ -54,10 +54,10 @@ export function FeaturedCategories() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="flex-shrink-0 w-24 bg-muted/20 border border-border rounded-xl p-3 flex flex-col items-center justify-center gap-2 aspect-square"
+                  className="flex-shrink-0 w-24 bg-card border border-border/80 rounded-xl p-3 flex flex-col items-center justify-center gap-2 aspect-square"
                 >
                   <div className="w-10 h-10 bg-muted rounded-full" />
-                  <div className="h-3 w-12 bg-muted rounded" />
+                  <div className="h-3.5 w-12 bg-muted rounded" />
                 </div>
               ))}
             </div>
@@ -86,31 +86,33 @@ export function FeaturedCategories() {
           </Link>
         </div>
 
-        {/* Desktop View: 16-Grid Table-like Border Layout */}
-        <div className="hidden md:grid grid-cols-4 lg:grid-cols-8 bg-border gap-[1px] border border-border rounded-xl overflow-hidden shadow-sm">
+        {/* Desktop View: Separate Square Card Layout with Spacing */}
+        <div className="hidden md:grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 md:gap-4">
           {categories.slice(0, 16).map((category, index) => (
-            <Link
+            <div
               key={category.id}
-              href={`/category/${category.slug}`}
-              className={`group bg-background p-4 flex flex-col items-center justify-center gap-4 aspect-[5/6] transition-all duration-300 hover:bg-muted/30 reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""
-                }`}
+              className={`flex flex-col items-center gap-2 select-none group reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""}`}
             >
-              {/* Category Image Box */}
-              <div className="relative w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 select-none">
+              <Link
+                href={`/category/${category.slug}`}
+                className="w-full aspect-square bg-secondary/30 border border-border/80 rounded-xl flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:shadow-foreground/5 hover:border-accent/40 relative overflow-hidden"
+              >
                 <Image
                   src={category.image}
                   alt={category.name}
                   fill
-                  className="object-contain rounded-md"
-                  sizes="(max-width: 768px) 80px, 120px"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 768px) 96px, 128px"
                 />
-              </div>
+              </Link>
 
-              {/* Category Name */}
-              <span className="text-xs md:text-sm font-semibold tracking-tight text-center text-foreground/95 group-hover:text-accent transition-colors line-clamp-2 px-1 max-w-[95%]">
-                {category.name}
-              </span>
-            </Link>
+              {/* Category Name (Outside/below the card) */}
+              <Link href={`/category/${category.slug}`} className="block w-full text-center">
+                <span className="text-xs md:text-sm font-bold tracking-tight text-foreground/90 group-hover:text-accent transition-colors line-clamp-1 px-0.5 max-w-full leading-none">
+                  {category.name}
+                </span>
+              </Link>
+            </div>
           ))}
         </div>
 
@@ -119,56 +121,60 @@ export function FeaturedCategories() {
           {/* Row 1 */}
           <div className="flex items-center gap-3 overflow-x-auto pb-1 px-1 scrollbar-none snap-x snap-mandatory scroll-smooth w-full select-none">
             {mobileRow1.map((category, index) => (
-              <Link
+              <div
                 key={category.id}
-                href={`/category/${category.slug}`}
-                className={`flex-shrink-0 w-24 bg-background border border-border/80 rounded-xl p-3 flex flex-col items-center justify-center gap-2 aspect-square snap-start shadow-sm active:scale-95 transition-all duration-300 hover:border-accent/30 reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""
-                  }`}
+                className={`flex-shrink-0 w-24 flex flex-col items-center gap-1.5 snap-start reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""}`}
               >
-                {/* Image Box */}
-                <div className="relative w-10 h-10 flex items-center justify-center select-none">
+                <Link
+                  href={`/category/${category.slug}`}
+                  className="w-full aspect-square bg-secondary/30 border border-border/80 rounded-xl flex items-center justify-center shadow-sm active:scale-95 transition-all duration-300 hover:border-accent/30 relative overflow-hidden"
+                >
                   <Image
                     src={category.image}
                     alt={category.name}
                     fill
-                    className="object-contain rounded-md"
-                    sizes="40px"
+                    className="object-cover transition-transform duration-500"
+                    sizes="96px"
                   />
-                </div>
+                </Link>
 
-                {/* Name */}
-                <span className="text-[10px] font-bold tracking-tight text-center text-foreground/90 line-clamp-2 px-0.5 leading-tight">
-                  {category.name}
-                </span>
-              </Link>
+                {/* Name (Outside/below the card) */}
+                <Link href={`/category/${category.slug}`} className="block w-full text-center">
+                  <span className="text-[10px] font-bold tracking-tight text-foreground/90 line-clamp-2 px-0.5 leading-tight">
+                    {category.name}
+                  </span>
+                </Link>
+              </div>
             ))}
           </div>
 
           {/* Row 2 */}
           <div className="flex items-center gap-3 overflow-x-auto pb-1 px-1 scrollbar-none snap-x snap-mandatory scroll-smooth w-full select-none">
             {mobileRow2.map((category, index) => (
-              <Link
+              <div
                 key={category.id}
-                href={`/category/${category.slug}`}
-                className={`flex-shrink-0 w-24 bg-background border border-border/80 rounded-xl p-3 flex flex-col items-center justify-center gap-2 aspect-square snap-start shadow-sm active:scale-95 transition-all duration-300 hover:border-accent/30 reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""
-                  }`}
+                className={`flex-shrink-0 w-24 flex flex-col items-center gap-1.5 snap-start reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""}`}
               >
-                {/* Image Box */}
-                <div className="relative w-10 h-10 flex items-center justify-center select-none">
+                <Link
+                  href={`/category/${category.slug}`}
+                  className="w-full aspect-square bg-secondary/30 border border-border/80 rounded-xl flex items-center justify-center shadow-sm active:scale-95 transition-all duration-300 hover:border-accent/30 relative overflow-hidden"
+                >
                   <Image
                     src={category.image}
                     alt={category.name}
                     fill
-                    className="object-contain rounded-md"
-                    sizes="40px"
+                    className="object-cover transition-transform duration-500"
+                    sizes="96px"
                   />
-                </div>
+                </Link>
 
-                {/* Name */}
-                <span className="text-[10px] font-bold tracking-tight text-center text-foreground/90 line-clamp-2 px-0.5 leading-tight">
-                  {category.name}
-                </span>
-              </Link>
+                {/* Name (Outside/below the card) */}
+                <Link href={`/category/${category.slug}`} className="block w-full text-center">
+                  <span className="text-[10px] font-bold tracking-tight text-foreground/90 line-clamp-2 px-0.5 leading-tight">
+                    {category.name}
+                  </span>
+                </Link>
+              </div>
             ))}
           </div>
         </div>

@@ -45,6 +45,7 @@
   "product": {
     "addToCart": "कार्ट में जोड़ें",
     "buyNow": "अभी खरीदें",
+    "orderNow": "अभी ऑर्डर करें",
     "outOfStock": "स्टॉक में नहीं",
     "inStock": "स्टॉक में",
     "quantity": "मात्रा",

@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
@@ -41,7 +42,7 @@ export default function CartPage() {
               >
                 {/* Image */}
                 <Link
-                  href={`/product/${item.id}`}
+                  href={`/products/${item.id}`} // Using the products plural route to match the folder structure
                   className="w-24 h-24 sm:w-32 sm:h-32 rounded-lg overflow-hidden bg-secondary shrink-0"
                 >
                   <Image
@@ -56,7 +57,7 @@ export default function CartPage() {
                 {/* Details */}
                 <div className="flex-1 min-w-0">
                   <Link
-                    href={`/product/${item.id}`}
+                    href={`/products/${item.id}`} // Using the products plural route
                     className="font-medium hover:text-accent transition-colors line-clamp-2"
                   >
                     {item.name}

@@ -837,6 +837,7 @@ export type Database = {
           is_best_seller: boolean | null;
           is_featured: boolean | null;
           is_new: boolean | null;
+          is_offer: boolean | null;
           is_variable: boolean;
           name: string;
           price: number;
@@ -859,6 +860,7 @@ export type Database = {
           is_best_seller?: boolean | null;
           is_featured?: boolean | null;
           is_new?: boolean | null;
+          is_offer?: boolean | null;
           is_variable?: boolean;
           name: string;
           price: number;
@@ -881,6 +883,7 @@ export type Database = {
           is_best_seller?: boolean | null;
           is_featured?: boolean | null;
           is_new?: boolean | null;
+          is_offer?: boolean | null;
           is_variable?: boolean;
           name?: string;
           price?: number;

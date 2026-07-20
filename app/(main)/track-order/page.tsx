@@ -1,4 +1,4 @@
-import TrackOrderPage from "@/components/TrackOrder/TrackOrder";
+import TrackOrderPage from "@/components/main/TrackOrder";
 
 export default function page() {
   return (

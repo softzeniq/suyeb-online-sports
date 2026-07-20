@@ -19,6 +19,7 @@ export interface Product {
   is_new: boolean;
   is_best_seller: boolean;
   is_featured: boolean;
+  is_offer: boolean;
   is_variable: boolean;
   created_at: string;
   updated_at: string;
@@ -80,6 +81,153 @@ export const useProducts = () => {
   });
 };
 
+export interface ShopFilterParams {
+  searchQuery?: string;
+  categorySlug?: string;
+  statusFilter?: string;
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  inStockOnly?: boolean;
+  sortBy?: string;
+  page?: number;
+  limit?: number;
+}
+
+export const useFilteredShopProducts = (params: ShopFilterParams) => {
+  const {
+    searchQuery = "",
+    categorySlug = "all",
+    statusFilter = "all",
+    minPrice = null,
+    maxPrice = null,
+    inStockOnly = false,
+    sortBy = "newest",
+    page = 1,
+    limit = 12,
+  } = params;
+
+  return useQuery({
+    queryKey: [
+      "filtered_products",
+      searchQuery,
+      categorySlug,
+      statusFilter,
+      minPrice,
+      maxPrice,
+      inStockOnly,
+      sortBy,
+      page,
+      limit,
+    ],
+    queryFn: async () => {
+      let categoryId: string | null = null;
+
+      if (categorySlug && categorySlug !== "all") {
+        const { data: categoryData } = await supabase
+          .from("categories")
+          .select("id")
+          .eq("slug", categorySlug)
+          .maybeSingle();
+
+        if (categoryData) {
+          categoryId = categoryData.id;
+        }
+      }
+
+      let query = supabase
+        .from("products")
+        .select("*, category:categories(*), product_variants(count)", {
+          count: "exact",
+        });
+
+      if (searchQuery.trim()) {
+        const q = searchQuery.trim();
+        query = query.or(`name.ilike.%${q}%,description.ilike.%${q}%,sku.ilike.%${q}%`);
+      }
+
+      if (categoryId) {
+        query = query.eq("category_id", categoryId);
+      }
+
+      if (statusFilter === "new") {
+        query = query.eq("is_new", true);
+      } else if (statusFilter === "bestsellers") {
+        query = query.eq("is_best_seller", true);
+      } else if (statusFilter === "sale") {
+        query = query.not("sale_price", "is", null);
+      }
+
+      if (minPrice !== null && !isNaN(minPrice)) {
+        query = query.gte("price", minPrice);
+      }
+      if (maxPrice !== null && !isNaN(maxPrice)) {
+        query = query.lte("price", maxPrice);
+      }
+
+      if (inStockOnly) {
+        query = query.gt("stock", 0);
+      }
+
+      switch (sortBy) {
+        case "price-low":
+          query = query.order("price", { ascending: true });
+          break;
+        case "price-high":
+          query = query.order("price", { ascending: false });
+          break;
+        case "bestsellers":
+          query = query.order("is_best_seller", { ascending: false });
+          break;
+        case "name-asc":
+          query = query.order("name", { ascending: true });
+          break;
+        case "newest":
+        default:
+          query = query.order("created_at", { ascending: false });
+          break;
+      }
+
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
+      query = query.range(from, to);
+
+      const { data, count, error } = await query;
+      if (error) throw error;
+
+      const products = (data || []).map((p: any) => ({
+        ...p,
+        product_variants: undefined,
+        has_variants:
+          p.is_variable && (p.product_variants?.[0]?.count || 0) > 0,
+      })) as (Product & { category: Category | null })[];
+
+      return {
+        products,
+        totalCount: count || 0,
+      };
+    },
+  });
+};
+
+export const useCategoryProductCounts = () => {
+  return useQuery({
+    queryKey: ["category_product_counts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("category_id");
+      if (error) throw error;
+      const counts: Record<string, number> = {};
+      (data || []).forEach((p: any) => {
+        if (p.category_id) {
+          counts[p.category_id] = (counts[p.category_id] || 0) + 1;
+        }
+      });
+      return counts;
+    },
+  });
+};
+
 export const useProduct = (slug: string) => {
   return useQuery({
     queryKey: ["product", slug],
@@ -105,6 +253,27 @@ export const useFeaturedProducts = () => {
         .from("products")
         .select("*, category:categories(*), product_variants(count)")
         .eq("is_featured", true)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return (data || []).map((p: any) => ({
+        ...p,
+        product_variants: undefined,
+        has_variants:
+          p.is_variable && (p.product_variants?.[0]?.count || 0) > 0,
+      })) as (Product & { category: Category | null })[];
+    },
+  });
+};
+
+export const useOfferProducts = () => {
+  return useQuery({
+    queryKey: ["products", "offer"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*, category:categories(*), product_variants(count)")
+        .eq("is_offer", true)
         .order("created_at", { ascending: false });
 
       if (error) throw error;

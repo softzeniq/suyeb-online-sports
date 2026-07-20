@@ -1,3 +1,4 @@
+"use client";
 import { ProductVariant } from "@/hooks/useVariants";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";

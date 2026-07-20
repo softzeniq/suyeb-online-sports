@@ -1,8 +1,13 @@
 "use client";
+import React from "react";
 import { BestSellers } from "@/components/main/home/BestSellers";
 import { FeaturedCategories } from "@/components/main/home/FeaturedCategories";
 import { FeaturedProducts } from "@/components/main/home/FeaturedProducts";
 import { HeroSlider } from "@/components/main/home/HeroSlider";
+import { CustomerReviews } from "@/components/main/home/CustomerReviews";
+import { TrustBadges } from "@/components/main/home/TrustBadges";
+import { PromoBanners } from "@/components/main/home/PromoBanners";
+import { PromoOffers } from "@/components/main/home/PromoOffers";
 
 import { ProductCard } from "@/components/main/products/ProductCard";
 import { HomepageSection } from "@/hooks/useHomePageTemplates";
@@ -19,6 +24,7 @@ const SECTION_COMPONENTS: Record<
   featured_categories: () => <FeaturedCategories />,
   featured_products: () => <FeaturedProducts />,
   best_sellers: () => <BestSellers />,
+  customer_reviews: () => <CustomerReviews />,
 };
 
 function NewArrivalsSection({ section }: { section: HomepageSection }) {
@@ -45,7 +51,7 @@ function NewArrivalsSection({ section }: { section: HomepageSection }) {
             View All <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-        <div className="product-grid product-grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+        <div className="product-grid product-grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-3">
           {newArrivals.map((product, index) => (
             <div
               key={product.id}
@@ -70,6 +76,7 @@ export function DefaultHomepage({ sections }: { sections: HomepageSection[] }) {
       "featured_products",
       "new_arrivals",
       "best_sellers",
+      "customer_reviews",
     ];
     if (!allowedTypes.includes(section.section_type)) return false;
     if (seen.has(section.section_type)) return false;
@@ -80,12 +87,28 @@ export function DefaultHomepage({ sections }: { sections: HomepageSection[] }) {
   return (
     <>
       {allowedSections.map((section) => {
+        let content: React.ReactNode = null;
         if (section.section_type === "new_arrivals") {
-          return <NewArrivalsSection key={section.id} section={section} />;
+          content = <NewArrivalsSection key={section.id} section={section} />;
+        } else {
+          const Component = SECTION_COMPONENTS[section.section_type];
+          if (Component) {
+            content = <Component key={section.id} section={section} />;
+          }
         }
-        const Component = SECTION_COMPONENTS[section.section_type];
-        if (Component) return <Component key={section.id} section={section} />;
-        return null;
+
+        return (
+          <React.Fragment key={section.id}>
+            {section.section_type === "customer_reviews" && (
+              <PromoOffers />
+            )}
+            {content}
+            {section.section_type === "hero_slider" && <TrustBadges />}
+            {section.section_type === "featured_products" && (
+              <PromoBanners settings={section.settings_json} />
+            )}
+          </React.Fragment>
+        );
       })}
     </>
   );

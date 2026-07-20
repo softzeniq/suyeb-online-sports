@@ -81,6 +81,7 @@ export default function AdminProducts() {
     is_new: false,
     is_best_seller: false,
     is_featured: false,
+    is_offer: false,
     is_active: true,
     is_variable: false,
     hide_stock: false,
@@ -109,6 +110,7 @@ export default function AdminProducts() {
       is_new: product.is_new || false,
       is_best_seller: product.is_best_seller || false,
       is_featured: product.is_featured || false,
+      is_offer: (product as any).is_offer || false,
       is_active: (product as any).is_active ?? true,
       is_variable: (product as any).is_variable ?? false,
       hide_stock: (product as any).hide_stock ?? false,
@@ -171,6 +173,7 @@ export default function AdminProducts() {
       is_new: formData.is_new,
       is_best_seller: formData.is_best_seller,
       is_featured: formData.is_featured,
+      is_offer: formData.is_offer,
       is_variable: formData.is_variable,
       hide_stock: formData.hide_stock,
       specifications:
@@ -211,6 +214,7 @@ export default function AdminProducts() {
       is_new: false,
       is_best_seller: false,
       is_featured: false,
+      is_offer: false,
       is_active: true,
       is_variable: false,
       hide_stock: false,
@@ -341,6 +345,7 @@ export default function AdminProducts() {
                       </SelectContent>
                     </Select>
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       Stock *
@@ -534,6 +539,20 @@ export default function AdminProducts() {
                     />
                     <span className="text-sm">Featured</span>
                   </label>
+                  <label className="flex items-center gap-2 font-semibold">
+                    <input
+                      type="checkbox"
+                      checked={formData.is_offer}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          is_offer: e.target.checked,
+                        })
+                      }
+                      className="w-4 h-4"
+                    />
+                    <span className="text-sm text-accent">Offer Product</span>
+                  </label>
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
@@ -644,6 +663,7 @@ export default function AdminProducts() {
                   <th className="px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase">
                     Category
                   </th>
+
                   <th className="px-6 py-3 text-right text-xs font-semibold text-muted-foreground uppercase">
                     Actions
                   </th>
@@ -710,6 +730,7 @@ export default function AdminProducts() {
                     <td className="px-6 py-4 text-muted-foreground">
                       {product.category?.name || "-"}
                     </td>
+
                     <td className="px-6 py-4 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

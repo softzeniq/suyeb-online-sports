@@ -1,3 +1,4 @@
+"use client";
 import { ProductCard } from "@/components/main/products/ProductCard";
 import { VariantSelector } from "@/components/main/products/VariantSelector";
 import { WishlistButton } from "@/components/main/products/WishlistButton";

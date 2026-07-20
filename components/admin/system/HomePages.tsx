@@ -20,6 +20,7 @@ import {
   useTemplateSections,
   useUpdateSection,
 } from "@/hooks/useHomePageTemplates";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 import {
   ChevronDown,
@@ -120,6 +121,24 @@ export default function AdminHomepage() {
     );
   };
 
+  const updateSectionSettingsField = (id: string, key: string, value: any) => {
+    setLocalSections((prev) =>
+      prev.map((s) => {
+        if (s.id === id) {
+          const currentSettings = s.settings_json || {};
+          return {
+            ...s,
+            settings_json: {
+              ...currentSettings,
+              [key]: value,
+            },
+          };
+        }
+        return s;
+      }),
+    );
+  };
+
   const handleSave = async () => {
     // Save sort order + enabled for all sections
     await bulkUpdate.mutateAsync(
@@ -137,7 +156,8 @@ export default function AdminHomepage() {
         (original.title !== s.title ||
           original.subtitle !== s.subtitle ||
           original.layout_style !== s.layout_style ||
-          original.product_source !== s.product_source)
+          original.product_source !== s.product_source ||
+          JSON.stringify(original.settings_json) !== JSON.stringify(s.settings_json))
       ) {
         await updateSection.mutateAsync({
           id: s.id,
@@ -145,6 +165,7 @@ export default function AdminHomepage() {
           subtitle: s.subtitle,
           layout_style: s.layout_style,
           product_source: s.product_source,
+          settings_json: s.settings_json,
         });
       }
     }
@@ -344,6 +365,87 @@ export default function AdminHomepage() {
                           </SelectContent>
                         </Select>
                       </div>
+
+                      {section.section_type === "featured_products" && (
+                        <div className="mt-4 border-t pt-4 space-y-4">
+                          <h4 className="text-xs font-bold text-accent tracking-wider uppercase">
+                            Promo Banners Configuration (Below Featured Products)
+                          </h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Banner 1 */}
+                            <div className="border rounded-lg p-3 space-y-2 bg-muted/20">
+                              <p className="text-xs font-semibold text-accent">Banner 1 (Left)</p>
+                              <Input
+                                value={section.settings_json?.banner1_badge || ""}
+                                onChange={(e) => updateSectionSettingsField(section.id, "banner1_badge", e.target.value)}
+                                placeholder="Badge text (e.g., Limited Time Offer)"
+                                className="h-8 text-xs"
+                              />
+                              <Input
+                                value={section.settings_json?.banner1_title || ""}
+                                onChange={(e) => updateSectionSettingsField(section.id, "banner1_title", e.target.value)}
+                                placeholder="Banner title"
+                                className="h-8 text-xs"
+                              />
+                              <Input
+                                value={section.settings_json?.banner1_desc || ""}
+                                onChange={(e) => updateSectionSettingsField(section.id, "banner1_desc", e.target.value)}
+                                placeholder="Description"
+                                className="h-8 text-xs"
+                              />
+                              <Input
+                                value={section.settings_json?.banner1_discount || ""}
+                                onChange={(e) => updateSectionSettingsField(section.id, "banner1_discount", e.target.value)}
+                                placeholder="Discount label (e.g., Up to 35% OFF)"
+                                className="h-8 text-xs"
+                              />
+                              <Input
+                                value={section.settings_json?.banner1_link || ""}
+                                onChange={(e) => updateSectionSettingsField(section.id, "banner1_link", e.target.value)}
+                                placeholder="Link (e.g., /products)"
+                                className="h-8 text-xs"
+                              />
+                            </div>
+                            
+                            {/* Banner 2 */}
+                            <div className="border rounded-lg p-3 space-y-2 bg-muted/20">
+                              <p className="text-xs font-semibold text-accent">Banner 2 (Right)</p>
+                              <Input
+                                value={section.settings_json?.banner2_badge || ""}
+                                onChange={(e) => updateSectionSettingsField(section.id, "banner2_badge", e.target.value)}
+                                placeholder="Badge text (e.g., New Arrivals)"
+                                className="h-8 text-xs"
+                              />
+                              <Input
+                                value={section.settings_json?.banner2_title || ""}
+                                onChange={(e) => updateSectionSettingsField(section.id, "banner2_title", e.target.value)}
+                                placeholder="Banner title"
+                                className="h-8 text-xs"
+                              />
+                              <Input
+                                value={section.settings_json?.banner2_desc || ""}
+                                onChange={(e) => updateSectionSettingsField(section.id, "banner2_desc", e.target.value)}
+                                placeholder="Description"
+                                className="h-8 text-xs"
+                              />
+                              <Input
+                                value={section.settings_json?.banner2_discount || ""}
+                                onChange={(e) => updateSectionSettingsField(section.id, "banner2_discount", e.target.value)}
+                                placeholder="Discount label (e.g., Run Fast)"
+                                className="h-8 text-xs"
+                              />
+                              <Input
+                                value={section.settings_json?.banner2_link || ""}
+                                onChange={(e) => updateSectionSettingsField(section.id, "banner2_link", e.target.value)}
+                                placeholder="Link (e.g., /products)"
+                                className="h-8 text-xs"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+
                     </div>
 
                     <Switch

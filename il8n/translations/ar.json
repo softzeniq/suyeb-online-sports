@@ -51,6 +51,7 @@
 "product": {
 "addToCart": "أضف إلى السلة",
 "buyNow": "اشترِ الآن",
+"orderNow": "اطلب الآن",
 "outOfStock": "غير متوفر",
 "inStock": "متوفر",
 "quantity": "الكمية",

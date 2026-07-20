@@ -1,8 +1,13 @@
 "use client";
+import { useCart } from "@/contexts/CartContext";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { Category, Product } from "@/hooks/useShopData";
+import { Plus, ShoppingCart, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { WishlistButton } from "./WishlistButton";
 
 interface ProductCardProps {
   product: Product & { category?: Category | null };
@@ -10,18 +15,56 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { t, formatCurrency } = useSiteSettings();
+  const { addItem } = useCart();
+  const router = useRouter();
 
   const hasDiscount = product.sale_price && product.sale_price < product.price;
   const discountPercent = hasDiscount
-    ? Math.round((1 - product.sale_price! / product.price) * 100)
+    ? Math.round(((product.price - product.sale_price!) / product.price) * 100)
     : 0;
 
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      salePrice: product.sale_price || undefined,
+      image: product.images[0] || "/placeholder.svg",
+      quantity: 1,
+      stock: product.stock || 10,
+    });
+
+    router.push("/checkout");
+  };
+
+  const handleAddToCartClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      salePrice: product.sale_price || undefined,
+      image: product.images[0] || "/placeholder.svg",
+      quantity: 1,
+      stock: product.stock || 10,
+    });
+
+    toast.success(t("product.addedToCart") || "Product added to cart", {
+      description: `1x ${product.name}`,
+    });
+  };
+
   return (
-    <div className="group bg-card rounded-md border border-border/60 flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-foreground/5 hover:border-border">
-      <Link href={`/product/${product.slug}`} className="block h-full">
+    <div className="group bg-card rounded-md border border-border/80 flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-foreground/5 p-2 justify-between">
+      <div>
         {/* Image wrapper with padding */}
-        <div className="">
-          <div className="relative aspect-square overflow-hidden bg-secondary/50">
+        <div className="relative aspect-square overflow-hidden bg-secondary/50 rounded-sm">
+          <Link href={`/product/${product.slug}`} className="block w-full h-full">
             <Image
               src={product.images[0] || "/placeholder.svg"}
               alt={product.name}
@@ -30,44 +73,81 @@ export function ProductCard({ product }: ProductCardProps) {
               width={320}
               loading="lazy"
             />
+          </Link>
 
-            {/* Badges */}
-            {product.is_new && (
-              <div className="absolute top-2.5 left-2.5 z-10">
-                <span className="bg-accent text-accent-foreground px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded">
-                  {t("product.new") || "New"}
-                </span>
-              </div>
-            )}
-          </div>
+          {/* Top Left Discount Badge (replacing the NEW badge position, aligned directly with corner) */}
+          {hasDiscount && (
+            <div className="absolute top-0 left-0 z-10 pointer-events-none">
+              <span className="bg-accent text-accent-foreground px-2 py-1 text-[12px] font-bold rounded-tl-[3px] rounded-br-md block shadow-sm">
+                {discountPercent}% off
+              </span>
+            </div>
+          )}
+
+          {/* Wishlist Button (Bottom Right of Image Area) */}
+          <WishlistButton
+            productId={product.id}
+            size="sm"
+            className="absolute bottom-2 right-2 z-20 bg-background/90 backdrop-blur-sm border border-border/60 shadow-sm hover:scale-105 active:scale-95 transition-all duration-300 opacity-100 md:opacity-0 md:group-hover:opacity-100 h-8 w-8 text-muted-foreground"
+          />
         </div>
 
-        {/* Content */}
-        <div className="p-3.5 flex flex-col justify-between">
-          <h3 className="font-semibold text-sm line-clamp-2 mb-2.5 group-hover:text-accent transition-colors leading-snug min-h-[2.5rem] overflow-hidden text-ellipsis text-foreground/90">
-            {product.name}
-          </h3>
-          <div className="flex items-center gap-2 mt-auto flex-wrap">
+        {/* Content Details */}
+        <div className="pt-2 pb-0.5 flex flex-col">
+          <Link href={`/product/${product.slug}`} className="block group-hover:text-accent transition-colors">
+            <h3 className="font-semibold text-xs line-clamp-2 leading-5 overflow-hidden text-ellipsis text-foreground/90 transition-colors group-hover:text-accent">
+              {product.name}
+            </h3>
+          </Link>
+
+          {/* Review Stars */}
+          <div className="flex gap-0.5 my-1">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className="h-3.5 w-3.5 text-muted-foreground/30 fill-none shrink-0"
+              />
+            ))}
+          </div>
+
+          {/* Price Box */}
+          <div className="flex items-center gap-1.5 text-sm font-bold text-accent mt-0.5 leading-none">
             {hasDiscount ? (
               <>
-                <span className="font-bold text-accent text-base">
+                <span className="text-sm font-bold text-accent">
                   {formatCurrency(product.sale_price!)}
                 </span>
-                <span className="text-xs text-muted-foreground line-through">
+                <span className="text-muted-foreground/60 font-medium">-</span>
+                <span className="text-muted-foreground/80 line-through font-semibold text-xs">
                   {formatCurrency(product.price)}
-                </span>
-                <span className="bg-destructive/10 text-destructive px-1.5 py-0.5 rounded text-[10px] font-bold">
-                  -{discountPercent}%
                 </span>
               </>
             ) : (
-              <span className="font-bold text-base text-foreground">
+              <span className="text-sm font-bold text-foreground">
                 {formatCurrency(product.price)}
               </span>
             )}
           </div>
         </div>
-      </Link>
+      </div>
+
+      {/* Action Buttons Row */}
+      <div className="flex items-center gap-2 mt-2 w-full">
+        <button
+          onClick={handleBuyNow}
+          className="bg-accent/5 text-accent hover:bg-accent hover:text-accent-foreground font-bold py-2 px-4 rounded-md text-xs flex-1 transition-all duration-200 shadow-sm active:scale-[0.98] text-center select-none flex items-center justify-center gap-1"
+        >
+          <Plus className="h-3.5 w-3.5 shrink-0" />
+          <span>{t("product.orderNow")}</span>
+        </button>
+        <button
+          onClick={handleAddToCartClick}
+          className="bg-accent/10 text-accent border border-accent/10 p-2 rounded-md transition-all duration-200 shrink-0 flex items-center justify-center h-8.5 w-8.5 active:scale-[0.98]"
+          aria-label="Add to cart"
+        >
+          <ShoppingCart className="h-4.5 w-4.5" />
+        </button>
+      </div>
     </div>
   );
 }
