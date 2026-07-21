@@ -167,6 +167,22 @@ export default async function RootLayout({
     >
       <head>
         <style dangerouslySetInnerHTML={{ __html: cssVariables }} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const theme = localStorage.getItem('site-theme-colors');
+                if (theme) {
+                  const colors = JSON.parse(theme);
+                  const root = document.documentElement;
+                  for (const [key, val] of Object.entries(colors)) {
+                    root.style.setProperty(key, val);
+                  }
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col">
         <Providers>

@@ -202,6 +202,7 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     
     const root = document.documentElement;
     const s = activeSettings;
+    const themeVars: Record<string, string> = {};
 
     // Apply accent (also used as ring)
     const accentColor = s.brand_accent || s.theme_accent_color;
@@ -220,6 +221,12 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         "--gradient-accent",
         `linear-gradient(135deg, hsl(${accentHsl}) 0%, hsl(${accentHsl}) 100%)`,
       );
+
+      themeVars["--accent"] = accentHsl;
+      themeVars["--ring"] = accentHsl;
+      themeVars["--sidebar-ring"] = accentHsl;
+      themeVars["--accent-foreground"] = getContrastForeground(accentColor);
+      themeVars["--gradient-accent"] = `linear-gradient(135deg, hsl(${accentHsl}) 0%, hsl(${accentHsl}) 100%)`;
     }
 
     // Apply primary
@@ -235,6 +242,11 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         "--sidebar-primary-foreground",
         getContrastForeground(s.brand_primary),
       );
+
+      themeVars["--primary"] = primaryHsl;
+      themeVars["--sidebar-primary"] = primaryHsl;
+      themeVars["--primary-foreground"] = getContrastForeground(s.brand_primary);
+      themeVars["--sidebar-primary-foreground"] = getContrastForeground(s.brand_primary);
     }
 
     // Apply secondary
@@ -246,29 +258,43 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         "--secondary-foreground",
         getContrastForeground(s.brand_secondary),
       );
+
+      themeVars["--secondary"] = secondaryHsl;
+      themeVars["--sidebar-accent"] = secondaryHsl;
+      themeVars["--secondary-foreground"] = getContrastForeground(s.brand_secondary);
     }
 
     // Apply background
     if (s.brand_background) {
-      root.style.setProperty("--background", hexToHSL(s.brand_background));
+      const bgHsl = hexToHSL(s.brand_background);
+      root.style.setProperty("--background", bgHsl);
       root.style.setProperty(
         "--sidebar-background",
-        hexToHSL(s.brand_background),
+        bgHsl,
       );
+
+      themeVars["--background"] = bgHsl;
+      themeVars["--sidebar-background"] = bgHsl;
     }
 
     // Apply foreground
     if (s.brand_foreground) {
-      root.style.setProperty("--foreground", hexToHSL(s.brand_foreground));
+      const fgHsl = hexToHSL(s.brand_foreground);
+      root.style.setProperty("--foreground", fgHsl);
       root.style.setProperty(
         "--sidebar-foreground",
-        hexToHSL(s.brand_foreground),
+        fgHsl,
       );
+
+      themeVars["--foreground"] = fgHsl;
+      themeVars["--sidebar-foreground"] = fgHsl;
     }
 
     // Apply muted
     if (s.brand_muted) {
-      root.style.setProperty("--muted-foreground", hexToHSL(s.brand_muted));
+      const mutedHsl = hexToHSL(s.brand_muted);
+      root.style.setProperty("--muted-foreground", mutedHsl);
+      themeVars["--muted-foreground"] = mutedHsl;
     }
 
     // Apply border
@@ -277,12 +303,17 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       root.style.setProperty("--border", borderHsl);
       root.style.setProperty("--input", borderHsl);
       root.style.setProperty("--sidebar-border", borderHsl);
+
+      themeVars["--border"] = borderHsl;
+      themeVars["--input"] = borderHsl;
+      themeVars["--sidebar-border"] = borderHsl;
     }
 
     // Apply card
     if (s.brand_card) {
-      root.style.setProperty("--card", hexToHSL(s.brand_card));
-      root.style.setProperty("--popover", hexToHSL(s.brand_card));
+      const cardHsl = hexToHSL(s.brand_card);
+      root.style.setProperty("--card", cardHsl);
+      root.style.setProperty("--popover", cardHsl);
       root.style.setProperty(
         "--card-foreground",
         getContrastForeground(s.brand_card),
@@ -291,11 +322,23 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         "--popover-foreground",
         getContrastForeground(s.brand_card),
       );
+
+      themeVars["--card"] = cardHsl;
+      themeVars["--popover"] = cardHsl;
+      themeVars["--card-foreground"] = getContrastForeground(s.brand_card);
+      themeVars["--popover-foreground"] = getContrastForeground(s.brand_card);
     }
 
     // Apply radius
     if (s.brand_radius) {
       root.style.setProperty("--radius", `${s.brand_radius}rem`);
+      themeVars["--radius"] = `${s.brand_radius}rem`;
+    }
+
+    try {
+      localStorage.setItem("site-theme-colors", JSON.stringify(themeVars));
+    } catch (e) {
+      // Ignore storage errors in private browsing/environments
     }
   }, [
     activeSettings.brand_primary,
