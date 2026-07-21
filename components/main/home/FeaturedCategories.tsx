@@ -2,9 +2,10 @@
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useCategories } from "@/hooks/useShopData";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 
 export function FeaturedCategories() {
   const { data: categories = [], isLoading } = useCategories();
@@ -116,36 +117,48 @@ export function FeaturedCategories() {
           ))}
         </div>
 
-        {/* Mobile View: Ultra-responsive 4-column Category Grid */}
-        <div className="grid md:hidden grid-cols-4 gap-2.5 sm:gap-3">
-          {categories.slice(0, 8).map((category, index) => (
-            <div
-              key={category.id}
-              className={`flex flex-col items-center gap-1.5 text-center group reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""}`}
-            >
-              <Link
-                href={`/shop?category=${category.slug}`}
-                className="w-full aspect-square bg-secondary/40 border border-border/70 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-2xs active:scale-95 transition-all duration-300 hover:border-accent/40"
-              >
-                <Image
-                  src={category.image}
-                  alt={category.name}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  sizes="(max-width: 640px) 25vw, 120px"
-                />
-              </Link>
-
-              {/* Name */}
-              <Link href={`/shop?category=${category.slug}`} className="block w-full text-center">
-                <span className="text-[11px] font-bold tracking-tight text-foreground/90 group-hover:text-accent transition-colors line-clamp-1 px-0.5 leading-tight">
-                  {category.name}
-                </span>
-              </Link>
-            </div>
-          ))}
+        {/* Mobile View: 2-Row Independent Horizontal Touch Scroll Slide */}
+        <div className="flex md:hidden flex-col gap-3">
+          <ScrollingRow items={mobileRow1} />
+          <ScrollingRow items={mobileRow2} />
         </div>
       </div>
     </section>
+  );
+}
+
+function ScrollingRow({ items }: { items: any[] }) {
+  return (
+    <div
+      className="flex items-center gap-3 overflow-x-auto pb-1 px-1 scrollbar-none w-full select-none snap-x snap-mandatory"
+      style={{ WebkitOverflowScrolling: "touch" }}
+    >
+      {items.map((category) => (
+        <div
+          key={category.id}
+          className="flex-shrink-0 w-24 flex flex-col items-center gap-1.5 text-center group snap-start"
+        >
+          <Link
+            href={`/shop?category=${category.slug}`}
+            className="w-full aspect-square bg-secondary/40 border border-border/70 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-2xs active:scale-95 transition-all duration-300 hover:border-accent/40"
+          >
+            <Image
+              src={category.image}
+              alt={category.name}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              sizes="96px"
+            />
+          </Link>
+
+          {/* Name */}
+          <Link href={`/shop?category=${category.slug}`} className="block w-full text-center">
+            <span className="text-[11px] font-bold tracking-tight text-foreground/90 group-hover:text-accent transition-colors line-clamp-1 px-0.5 leading-tight">
+              {category.name}
+            </span>
+          </Link>
+        </div>
+      ))}
+    </div>
   );
 }

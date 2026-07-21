@@ -198,6 +198,8 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Apply all brand theme colors to CSS variables
   useEffect(() => {
+    if (!settings) return;
+    
     const root = document.documentElement;
     const s = activeSettings;
 
