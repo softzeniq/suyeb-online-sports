@@ -1,9 +1,10 @@
 import TrackOrderPage from "@/components/main/TrackOrder";
+import { Suspense } from "react";
 
 export default function page() {
   return (
-    <div>
+    <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
       <TrackOrderPage />
-    </div>
+    </Suspense>
   );
 }

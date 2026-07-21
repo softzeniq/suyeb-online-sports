@@ -1,9 +1,10 @@
 import ShopPage from "@/components/main/Shop";
+import { Suspense } from "react";
 
 export default function page() {
   return (
-    <div>
+    <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
       <ShopPage />
-    </div>
+    </Suspense>
   );
 }

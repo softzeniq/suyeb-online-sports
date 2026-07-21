@@ -1,3 +1,4 @@
+import { HomepageSection } from "@/hooks/useHomePageTemplates";
 import { createClient } from "@/utils/supabase/client";
 import { DefaultHomepage } from "./HomeTemplate";
 
@@ -10,5 +11,9 @@ export default async function HomeTemplate() {
     .eq("enabled", true)
     .order("sort_order");
 
-  return <DefaultHomepage sections={sections || []} />;
+  return (
+    <DefaultHomepage
+      sections={(sections as unknown as HomepageSection[]) || []}
+    />
+  );
 }

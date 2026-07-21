@@ -392,7 +392,10 @@ export const useProductsByCategory = (categorySlug: string) => {
   });
 };
 
-export const useRelatedProducts = (product: Product | null, limit = 4) => {
+export const useRelatedProducts = (
+  product: Product | null | undefined,
+  limit = 4,
+) => {
   return useQuery({
     queryKey: ["products", "related", product?.id],
     queryFn: async () => {
@@ -498,7 +501,7 @@ export const useCreateProduct = () => {
     ) => {
       const { data, error } = await supabase
         .from("products")
-        .insert(product)
+        .insert(product as any)
         .select()
         .single();
 
@@ -525,7 +528,7 @@ export const useUpdateProduct = () => {
     }: Partial<Product> & { id: string }) => {
       const { data, error } = await supabase
         .from("products")
-        .update(product)
+        .update(product as any)
         .eq("id", id)
         .select()
         .single();
@@ -574,7 +577,7 @@ export const useCreateCategory = () => {
     ) => {
       const { data, error } = await supabase
         .from("categories")
-        .insert(category)
+        .insert(category as any)
         .select()
         .single();
 
@@ -601,7 +604,7 @@ export const useUpdateCategory = () => {
     }: Partial<Category> & { id: string }) => {
       const { data, error } = await supabase
         .from("categories")
-        .update(category)
+        .update(category as any)
         .eq("id", id)
         .select()
         .single();
@@ -647,7 +650,7 @@ export const useCreateSlide = () => {
     ) => {
       const { data, error } = await supabase
         .from("slider_slides")
-        .insert(slide)
+        .insert(slide as any)
         .select()
         .single();
 
@@ -674,7 +677,7 @@ export const useUpdateSlide = () => {
     }: Partial<SliderSlide> & { id: string }) => {
       const { data, error } = await supabase
         .from("slider_slides")
-        .update(slide)
+        .update(slide as any)
         .eq("id", id)
         .select()
         .single();

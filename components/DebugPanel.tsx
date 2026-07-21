@@ -6,7 +6,7 @@ export function DebugPanel() {
   const [isOpen, setIsOpen] = useState(false);
 
   // Only show in development
-  if (import.meta.env.PROD) return null;
+  if (process.env.NODE_ENV === "production") return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-50">

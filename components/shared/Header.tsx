@@ -510,7 +510,9 @@ export function Header() {
                 }`}
               >
                 <span>{item.name}</span>
-                {item.hasDropdown && <ChevronDown className="h-3 w-3 shrink-0" />}
+                {"hasDropdown" in item && (item as any).hasDropdown && (
+                  <ChevronDown className="h-3 w-3 shrink-0" />
+                )}
               </Link>
             );
           })}
