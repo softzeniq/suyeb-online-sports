@@ -1,35 +1,39 @@
 "use client";
+
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
-import { FaFacebook, FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
-
-import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import {
+  ChevronRight,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { FaFacebook, FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
 
 export function Footer() {
   const { t } = useSiteSettings();
-  const { data: storeSettings, isLoading } = useStoreSettings();
+  const { data: storeSettings } = useStoreSettings();
 
   const footerLinks = {
     shop: [
-      { name: t("nav.shop"), href: "/products" },
-      { name: t("home.newArrivals"), href: "/products?filter=new" },
-      { name: t("home.bestSellers"), href: "/products?filter=bestsellers" },
-      { name: t("product.sale"), href: "/products?filter=sale" },
+      { name: t("nav.shop"), href: "/shop" },
+      { name: t("home.newArrivals") || "New Arrivals", href: "/shop?filter=new" },
+      { name: t("home.bestSellers") || "Best Sellers", href: "/shop?filter=bestsellers" },
+      { name: "Featured Products", href: "/shop?filter=featured" },
+      { name: t("product.sale") || "On Sale", href: "/shop?filter=sale" },
     ],
     company: [
-      { name: t("footer.aboutUs"), href: "/about" },
-      { name: t("nav.contact"), href: "/contact" },
-      { name: t("nav.faq"), href: "/faq" },
-    ],
-    support: [
-      { name: t("footer.shippingInfo"), href: "/shipping" },
-      { name: t("footer.returnPolicy"), href: "/returns" },
+      { name: t("footer.aboutUs") || "About Us", href: "/about" },
+      { name: t("nav.contact") || "Contact Us", href: "/contact" },
+      { name: "Track Your Order", href: "/track-order" },
+      { name: t("nav.faq") || "FAQ", href: "/faq" },
     ],
   };
 
-  // Build social links from settings
+  // Build social links dynamically from database settings
   const socialLinks = [];
   if (storeSettings?.facebook_url) {
     socialLinks.push({
@@ -60,7 +64,7 @@ export function Footer() {
     });
   }
 
-  // Fallback if no social links configured
+  // Fallback if no social links configured in admin
   if (socialLinks.length === 0) {
     socialLinks.push(
       { name: "Facebook", href: "#", icon: FaFacebook },
@@ -68,8 +72,10 @@ export function Footer() {
     );
   }
 
-  const storeName = storeSettings?.store_name || "STORE";
-  const storeTagline = storeSettings?.store_tagline || t("home.heroSubtitle");
+  const storeName = storeSettings?.store_name || "ONLINE STORE";
+  const storeTagline =
+    storeSettings?.store_tagline ||
+    "Your premium destination for authentic sports gear, apparel, and accessories.";
   const storePhone = storeSettings?.store_phone || "";
   const storeEmail = storeSettings?.store_email || "";
   const storeAddress = storeSettings?.store_address || "";
@@ -80,36 +86,43 @@ export function Footer() {
   const fullAddress = [storeAddress, storeCity].filter(Boolean).join(", ");
 
   return (
-    <footer className="bg-primary text-primary-foreground">
-      <div className="container-shop section-padding">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-          {/* Brand */}
-          <div className="lg:col-span-1">
-            <Link href="/" className="inline-block mb-4">
+    <footer className="bg-foreground text-background border-t border-border/20 pt-12 pb-8">
+      <div className="container-shop">
+        {/* Main Footer Columns */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 pb-12">
+          {/* Brand Column */}
+          <div className="space-y-4">
+            <Link href="/" className="inline-block">
               {storeSettings?.store_logo ? (
                 <Image
                   src={storeSettings.store_logo}
                   alt={storeName}
-                  className="h-10 w-auto object-contain"
+                  height={48}
+                  width={180}
+                  className="h-12 w-auto object-contain brightness-0 invert"
                 />
               ) : (
-                <span className="text-2xl font-bold tracking-tight">
+                <span className="text-2xl font-black tracking-tight text-background">
                   {storeName}
                 </span>
               )}
             </Link>
-            <p className="text-primary-foreground/80 text-sm mb-6 max-w-xs">
+
+            <p className="text-xs md:text-sm text-background/70 leading-relaxed max-w-sm">
               {storeTagline}
             </p>
-            <div className="flex gap-4">
+
+            {/* Social Links */}
+            <div className="flex items-center gap-2.5 pt-2">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-accent transition-colors"
+                  className="w-9 h-9 rounded-xl bg-background/10 text-background flex items-center justify-center hover:bg-accent hover:text-accent-foreground hover:scale-110 transition-all cursor-pointer"
                   aria-label={social.name}
+                  title={social.name}
                 >
                   <social.icon className="h-4 w-4" />
                 </a>
@@ -119,8 +132,9 @@ export function Footer() {
                   href={`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-accent transition-colors"
+                  className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center hover:bg-emerald-500 hover:text-white hover:scale-110 transition-all cursor-pointer"
                   aria-label="WhatsApp"
+                  title="WhatsApp"
                 >
                   <MessageCircle className="h-4 w-4" />
                 </a>
@@ -128,102 +142,106 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Shop Links */}
-          <div>
-            <h4 className="font-semibold mb-4">{t("nav.shop")}</h4>
-            <ul className="space-y-3">
+          {/* Column 2: Quick Links */}
+          <div className="space-y-4">
+            <h3 className="font-extrabold text-sm uppercase tracking-wider text-background flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-accent inline-block" />
+              <span>Explore Shop</span>
+            </h3>
+            <ul className="space-y-2.5">
               {footerLinks.shop.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                    className="text-xs md:text-sm text-background/70 hover:text-accent hover:translate-x-1.5 transition-all flex items-center gap-1.5 group"
                   >
-                    {link.name}
+                    <ChevronRight className="h-3 w-3 text-background/40 group-hover:text-accent transition-colors" />
+                    <span>{link.name}</span>
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Company Links */}
-          <div>
-            <h4 className="font-semibold mb-4">{t("footer.quickLinks")}</h4>
-            <ul className="space-y-3">
+          {/* Column 3: Customer Care */}
+          <div className="space-y-4">
+            <h3 className="font-extrabold text-sm uppercase tracking-wider text-background flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-accent inline-block" />
+              <span>Customer Care</span>
+            </h3>
+            <ul className="space-y-2.5">
               {footerLinks.company.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                    className="text-xs md:text-sm text-background/70 hover:text-accent hover:translate-x-1.5 transition-all flex items-center gap-1.5 group"
                   >
-                    {link.name}
+                    <ChevronRight className="h-3 w-3 text-background/40 group-hover:text-accent transition-colors" />
+                    <span>{link.name}</span>
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Contact */}
-          <div>
-            <h4 className="font-semibold mb-4">{t("footer.contactUs")}</h4>
-            <ul className="space-y-3">
+          {/* Column 4: Contact & Address */}
+          <div className="space-y-4">
+            <h3 className="font-extrabold text-sm uppercase tracking-wider text-background flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-accent inline-block" />
+              <span>Contact Us</span>
+            </h3>
+            <div className="space-y-3 text-xs md:text-sm text-background/70">
               {fullAddress && (
-                <li className="flex items-start gap-3 text-sm text-primary-foreground/70">
-                  <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                  <span>{fullAddress}</span>
-                </li>
+                <div className="flex items-start gap-2.5">
+                  <MapPin className="h-4 w-4 text-accent shrink-0 mt-0.5" />
+                  <span className="leading-relaxed">{fullAddress}</span>
+                </div>
               )}
+
               {storePhone && (
-                <li className="flex items-center gap-3 text-sm text-primary-foreground/70">
-                  <Phone className="h-4 w-4 shrink-0" />
-                  <a
-                    href={`tel:${storePhone}`}
-                    className="hover:text-primary-foreground"
-                  >
-                    {storePhone}
-                  </a>
-                </li>
+                <a
+                  href={`tel:${storePhone}`}
+                  className="flex items-center gap-2.5 hover:text-accent transition-colors block"
+                >
+                  <Phone className="h-4 w-4 text-accent shrink-0" />
+                  <span className="font-medium">{storePhone}</span>
+                </a>
               )}
+
               {storeEmail && (
-                <li className="flex items-center gap-3 text-sm text-primary-foreground/70">
-                  <Mail className="h-4 w-4 shrink-0" />
-                  <a
-                    href={`mailto:${storeEmail}`}
-                    className="hover:text-primary-foreground"
-                  >
-                    {storeEmail}
-                  </a>
-                </li>
+                <a
+                  href={`mailto:${storeEmail}`}
+                  className="flex items-center gap-2.5 hover:text-accent transition-colors block"
+                >
+                  <Mail className="h-4 w-4 text-accent shrink-0" />
+                  <span className="truncate">{storeEmail}</span>
+                </a>
               )}
-              {!fullAddress && !storePhone && !storeEmail && (
-                <li className="text-sm text-primary-foreground/50 italic">
-                  Contact info not configured
-                </li>
-              )}
-            </ul>
+            </div>
           </div>
         </div>
 
-        {/* Bottom */}
-        <div className="mt-12 pt-8 border-t border-primary-foreground/10">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-primary-foreground/60">
-              {footerText ||
-                `© ${new Date().getFullYear()} ${storeName}. ${t("footer.allRightsReserved")}.`}
-            </p>
-            <div className="flex gap-6">
-              <Link
-                href="/privacy"
-                className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors"
-              >
-                {t("footer.privacyPolicy")}
-              </Link>
-              <Link
-                href="/terms"
-                className="text-sm text-primary-foreground/60 hover:text-primary-foreground transition-colors"
-              >
-                {t("footer.termsConditions")}
-              </Link>
-            </div>
+        {/* Bottom copyright and legal bar */}
+        <div className="pt-8 border-t border-background/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-background/60 text-center md:text-left">
+            {footerText ||
+              `© ${new Date().getFullYear()} ${storeName}. All rights reserved.`}
+          </p>
+
+          {/* Legal Links */}
+          <div className="flex items-center gap-6">
+            <Link
+              href="/privacy"
+              className="text-xs text-background/60 hover:text-background transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href="/terms"
+              className="text-xs text-background/60 hover:text-background transition-colors"
+            >
+              Terms of Service
+            </Link>
           </div>
         </div>
       </div>

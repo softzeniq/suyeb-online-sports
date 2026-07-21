@@ -21,6 +21,7 @@ export interface Product {
   is_featured: boolean;
   is_offer: boolean;
   is_variable: boolean;
+  rating?: number | null;
   created_at: string;
   updated_at: string;
   has_variants?: boolean;
@@ -153,6 +154,8 @@ export const useFilteredShopProducts = (params: ShopFilterParams) => {
         query = query.eq("is_new", true);
       } else if (statusFilter === "bestsellers") {
         query = query.eq("is_best_seller", true);
+      } else if (statusFilter === "featured") {
+        query = query.eq("is_featured", true);
       } else if (statusFilter === "sale") {
         query = query.not("sale_price", "is", null);
       }
@@ -228,20 +231,49 @@ export const useCategoryProductCounts = () => {
   });
 };
 
-export const useProduct = (slug: string) => {
+export const useProduct = (slugOrId: string) => {
   return useQuery({
-    queryKey: ["product", slug],
+    queryKey: ["product", slugOrId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      if (!slugOrId) return null;
+
+      let decoded = slugOrId;
+      try {
+        decoded = decodeURIComponent(slugOrId);
+      } catch (e) {
+        // use raw slug if decoding fails
+      }
+
+      // 1. Try matching slug
+      let { data } = await supabase
         .from("products")
         .select("*, category:categories(*)")
-        .eq("slug", slug)
+        .eq("slug", decoded)
         .maybeSingle();
 
-      if (error) throw error;
+      // 2. Try raw string if different
+      if (!data && decoded !== slugOrId) {
+        const res = await supabase
+          .from("products")
+          .select("*, category:categories(*)")
+          .eq("slug", slugOrId)
+          .maybeSingle();
+        data = res.data;
+      }
+
+      // 3. Fallback: try matching ID (in case ID is passed instead of slug)
+      if (!data) {
+        const res = await supabase
+          .from("products")
+          .select("*, category:categories(*)")
+          .eq("id", decoded)
+          .maybeSingle();
+        data = res.data;
+      }
+
       return data as (Product & { category: Category | null }) | null;
     },
-    enabled: !!slug,
+    enabled: !!slugOrId,
   });
 };
 

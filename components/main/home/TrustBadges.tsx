@@ -31,23 +31,23 @@ export function TrustBadges() {
   return (
     <section className="py-8 bg-muted/40" ref={ref}>
       <div className="container-shop">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-6">
           {badges.map((badge, index) => {
             const Icon = badge.icon;
             return (
               <div
                 key={index}
-                className={`flex items-center gap-4 p-4 rounded-xl bg-background border border-border/40 shadow-sm hover:shadow-md transition-all duration-300 hover:border-accent/20 hover:-translate-y-0.5 reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""
+                className={`flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-4 p-3.5 sm:p-4 rounded-2xl bg-background border border-border/60 shadow-2xs hover:shadow-md transition-all duration-300 hover:border-accent/30 reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""
                   }`}
               >
-                <div className="p-3 bg-accent/10 rounded-xl text-accent shrink-0">
-                  <Icon className="h-6 w-6" />
+                <div className="p-2.5 sm:p-3 bg-accent/10 rounded-xl text-accent shrink-0">
+                  <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
-                <div>
-                  <h4 className="font-bold text-sm text-foreground/90">
+                <div className="min-w-0">
+                  <h4 className="font-extrabold text-xs sm:text-sm text-foreground/90 leading-tight">
                     {badge.title}
                   </h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 leading-tight">
                     {badge.desc}
                   </p>
                 </div>

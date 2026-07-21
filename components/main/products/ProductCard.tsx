@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useProductRatingStats, useHideStockMap } from "@/hooks/useProductReviews";
 import { WishlistButton } from "./WishlistButton";
 
 interface ProductCardProps {
@@ -17,6 +18,13 @@ export function ProductCard({ product }: ProductCardProps) {
   const { t, formatCurrency } = useSiteSettings();
   const { addItem } = useCart();
   const router = useRouter();
+  const { getProductRating } = useProductRatingStats();
+  const { data: hideStockMap = {} } = useHideStockMap();
+
+  const ratingInfo = getProductRating(product.id);
+  const ratingValue = ratingInfo.avgRating;
+  const isStockHidden = hideStockMap[product.id] ?? (product as any)?.hide_stock ?? false;
+  const isOutOfStock = product.stock <= 0 || isStockHidden;
 
   const hasDiscount = product.sale_price && product.sale_price < product.price;
   const discountPercent = hasDiscount
@@ -64,7 +72,7 @@ export function ProductCard({ product }: ProductCardProps) {
       <div>
         {/* Image wrapper with padding */}
         <div className="relative aspect-square overflow-hidden bg-secondary/50 rounded-sm">
-          <Link href={`/product/${product.slug}`} className="block w-full h-full">
+          <Link href={`/products/${product.slug}`} className="block w-full h-full">
             <Image
               src={product.images[0] || "/placeholder.svg"}
               alt={product.name}
@@ -84,6 +92,15 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
+          {/* Out of Stock Overlay Badge */}
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-background/60 backdrop-blur-[1px] flex items-center justify-center z-10">
+              <span className="bg-destructive text-destructive-foreground px-2.5 py-1 rounded-md text-[11px] font-black uppercase tracking-wider shadow-sm">
+                Stock Out
+              </span>
+            </div>
+          )}
+
           {/* Wishlist Button (Bottom Right of Image Area) */}
           <WishlistButton
             productId={product.id}
@@ -94,20 +111,29 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Content Details */}
         <div className="pt-2 pb-0.5 flex flex-col">
-          <Link href={`/product/${product.slug}`} className="block group-hover:text-accent transition-colors">
+          <Link href={`/products/${product.slug}`} className="block group-hover:text-accent transition-colors">
             <h3 className="font-semibold text-xs line-clamp-2 leading-5 overflow-hidden text-ellipsis text-foreground/90 transition-colors group-hover:text-accent">
               {product.name}
             </h3>
           </Link>
 
           {/* Review Stars */}
-          <div className="flex gap-0.5 my-1">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star
-                key={i}
-                className="h-3.5 w-3.5 text-muted-foreground/30 fill-none shrink-0"
-              />
-            ))}
+          <div className="flex items-center gap-1 my-1">
+            <div className="flex items-center gap-0.5">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  className={`h-3.5 w-3.5 ${
+                    star <= Math.round(ratingValue)
+                      ? "fill-amber-400 text-amber-400"
+                      : "text-border fill-muted/20"
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-[10px] font-bold text-muted-foreground ml-0.5">
+              ({ratingValue.toFixed(1)})
+            </span>
           </div>
 
           {/* Price Box */}
@@ -132,22 +158,40 @@ export function ProductCard({ product }: ProductCardProps) {
       </div>
 
       {/* Action Buttons Row */}
-      <div className="flex items-center gap-2 mt-2 w-full">
-        <button
-          onClick={handleBuyNow}
-          className="bg-accent/5 text-accent hover:bg-accent hover:text-accent-foreground font-bold py-2 px-4 rounded-md text-xs flex-1 transition-all duration-200 shadow-sm active:scale-[0.98] text-center select-none flex items-center justify-center gap-1"
-        >
-          <Plus className="h-3.5 w-3.5 shrink-0" />
-          <span>{t("product.orderNow")}</span>
-        </button>
-        <button
-          onClick={handleAddToCartClick}
-          className="bg-accent/10 text-accent border border-accent/10 p-2 rounded-md transition-all duration-200 shrink-0 flex items-center justify-center h-8.5 w-8.5 active:scale-[0.98]"
-          aria-label="Add to cart"
-        >
-          <ShoppingCart className="h-4.5 w-4.5" />
-        </button>
-      </div>
+      {isOutOfStock ? (
+        <div className="mt-2 w-full">
+          <button
+            disabled
+            className="w-full bg-destructive/10 text-destructive border border-destructive/20 font-extrabold py-2 px-3 rounded-md text-xs text-center cursor-not-allowed opacity-80"
+          >
+            Stock Out
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 mt-2 w-full">
+          <button
+            onClick={handleBuyNow}
+            className="bg-accent/5 text-accent hover:bg-accent hover:text-accent-foreground font-bold py-2 px-4 rounded-md text-xs flex-1 transition-all duration-200 shadow-sm active:scale-[0.98] text-center select-none flex items-center justify-center gap-1 cursor-pointer"
+          >
+            <Plus className="h-3.5 w-3.5 shrink-0" />
+            <span>{t("product.orderNow")}</span>
+          </button>
+          <div className="relative group/cart shrink-0">
+            <button
+              onClick={handleAddToCartClick}
+              className="bg-accent/10 text-accent border border-accent/10 p-2 rounded-md transition-all duration-200 shrink-0 flex items-center justify-center h-8.5 w-8.5 active:scale-[0.98] cursor-pointer hover:bg-accent hover:text-accent-foreground"
+              aria-label="Add to cart"
+              title="Add to cart"
+            >
+              <ShoppingCart className="h-4.5 w-4.5" />
+            </button>
+            {/* Small hover tooltip below */}
+            <span className="pointer-events-none absolute -bottom-7 right-0 opacity-0 group-hover/cart:opacity-100 transition-opacity bg-foreground text-background text-[10px] font-bold px-2 py-0.5 rounded shadow-md whitespace-nowrap z-40">
+              Add to cart
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

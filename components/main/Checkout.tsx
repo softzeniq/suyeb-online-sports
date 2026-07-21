@@ -1,4 +1,6 @@
 "use client";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,7 +16,25 @@ import { useCreateOrder } from "@/hooks/useOrders";
 import { usePaymentMethods } from "@/hooks/usePaymentMethods";
 import { useShippingMethods } from "@/hooks/useShippingMethods";
 import { trackInitiateCheckout } from "@/lib/facebook-pixel";
+import {
+  ArrowRight,
+  Check,
+  CheckCircle2,
+  ChevronRight,
+  CreditCard,
+  Home,
+  Lock,
+  MapPin,
+  PackageCheck,
+  Phone,
+  ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  Truck,
+  User,
+} from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -192,7 +212,6 @@ export default function CheckoutPage() {
 
     const orderNumber = `ORD-${Date.now().toString().slice(-8)}`;
 
-    // Build partial rule snapshot
     const partialSnapshot =
       hasPartial && selectedPayment
         ? {
@@ -259,264 +278,371 @@ export default function CheckoutPage() {
       clearCart();
       router.push(`/order-success?orderId=${orderNumber}`);
     } catch (error) {
-      // Error is handled by the mutation
+      // Error is handled by mutation
     }
   };
 
   if (items.length === 0) {
     return (
-      <div className="container-shop section-padding text-center">
-        <h1 className="text-2xl font-bold mb-4">{t("cart.emptyCart")}</h1>
-        <Button onClick={() => router.push("/shop")} className="btn-accent">
-          {t("cart.continueShopping")}
-        </Button>
+      <div className="bg-background min-h-[75vh] flex items-center justify-center py-16">
+        <div className="container-shop max-w-lg text-center px-4">
+          <div className="w-20 h-20 mx-auto mb-6 flex items-center justify-center rounded-3xl bg-secondary/80 border border-border/80 shadow-xs">
+            <ShoppingBag className="h-10 w-10 text-muted-foreground/60" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground mb-2">
+            Your Cart is Empty
+          </h1>
+          <p className="text-sm text-muted-foreground mb-6">
+            Please add items to your cart before proceeding to checkout.
+          </p>
+          <Button
+            onClick={() => router.push("/shop")}
+            className="bg-accent text-accent-foreground hover:opacity-90 font-bold px-8 h-11 rounded-xl text-sm"
+          >
+            Explore Products
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container-shop section-padding">
-      <h1 className="text-2xl md:text-3xl font-bold mb-2">
-        {t("checkout.title")}
-      </h1>
-      <p className="text-muted-foreground mb-8">{t("checkout.formHeading")}</p>
+    <div className="bg-background min-h-screen pb-20">
+      {/* Header Banner Section (Matching Shop & Cart Page Aesthetic) */}
+      <div className="border-b border-border/60 bg-muted/20 py-6 mb-8">
+        <div className="container-shop">
+          {/* Breadcrumbs */}
+          <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+            <Link href="/" className="hover:text-foreground flex items-center gap-1 transition-colors">
+              <Home className="h-3.5 w-3.5" />
+              <span>Home</span>
+            </Link>
+            <ChevronRight className="h-3 w-3" />
+            <Link href="/cart" className="hover:text-foreground transition-colors">
+              Cart
+            </Link>
+            <ChevronRight className="h-3 w-3" />
+            <span className="text-foreground font-medium">Checkout</span>
+          </nav>
 
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Form */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Customer Information */}
-            <div className="bg-card rounded-xl border border-border p-6">
-              <h2 className="text-lg font-semibold mb-4">
-                {t("checkout.contactInfo")}
-              </h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    {t("checkout.fullName")}{" "}
-                    <span className="text-destructive">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    className="input-shop"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    {t("checkout.phone")}{" "}
-                    <span className="text-destructive">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="input-shop"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    {t("checkout.address")}{" "}
-                    <span className="text-destructive">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    className="input-shop"
-                    placeholder={t("checkout.addressPlaceholder")}
-                    required
-                  />
-                </div>
+          {/* Title and features badges */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
+                  Checkout & Payment
+                </h1>
+                <Badge className="bg-accent/10 text-accent border border-accent/20 text-xs px-2.5 py-0.5 rounded-full font-bold">
+                  Fast Checkout
+                </Badge>
+              </div>
+              <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                Enter your shipping address and select payment method to complete order.
+              </p>
+            </div>
+
+            {/* Feature Badges */}
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-background px-3 py-1.5 rounded-full border border-border/80 shadow-xs">
+                <Lock className="h-3.5 w-3.5 text-accent" />
+                <span>256-Bit SSL Encryption</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-background px-3 py-1.5 rounded-full border border-border/80 shadow-xs">
+                <Truck className="h-3.5 w-3.5 text-accent" />
+                <span>Fast Shipping BD</span>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            {/* Shipping Method */}
-            <div className="bg-card rounded-xl border border-border p-6">
-              <h2 className="text-lg font-semibold mb-4">
-                {t("checkout.shippingMethod")}
-              </h2>
-              {isLoadingMethods ? (
-                <div className="space-y-3">
-                  <Skeleton className="h-20 w-full" />
-                  <Skeleton className="h-20 w-full" />
+      <div className="container-shop">
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            {/* Left Column: Form Steps */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Step 1: Contact & Delivery Address */}
+              <div className="bg-card border border-border/80 rounded-2xl p-6 shadow-xs space-y-5">
+                <div className="flex items-center gap-3 border-b border-border/60 pb-4">
+                  <div className="w-8 h-8 rounded-xl bg-accent/10 text-accent font-extrabold flex items-center justify-center text-sm border border-accent/20">
+                    1
+                  </div>
+                  <div>
+                    <h2 className="font-extrabold text-base text-foreground flex items-center gap-2">
+                      <User className="h-4 w-4 text-accent" />
+                      <span>Delivery Information</span>
+                    </h2>
+                    <p className="text-xs text-muted-foreground">Provide your shipping address details</p>
+                  </div>
                 </div>
-              ) : shippingMethods.length === 0 ? (
-                <p className="text-muted-foreground">
-                  No shipping methods available
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {shippingMethods.map((method) => (
-                    <label
-                      key={method.id}
-                      className="flex items-center gap-3 p-4 border border-border rounded-lg cursor-pointer hover:border-accent transition-colors"
-                    >
-                      <input
-                        type="radio"
-                        name="shippingMethodId"
-                        value={method.id}
-                        checked={formData.shippingMethodId === method.id}
-                        onChange={handleChange}
-                        className="w-4 h-4 text-accent"
-                      />
-                      <div className="flex-1">
-                        <p className="font-medium">{method.name}</p>
-                        {method.estimated_days && (
-                          <p className="text-sm text-muted-foreground">
-                            {method.estimated_days}
-                          </p>
-                        )}
-                        {method.description && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {method.description}
-                          </p>
-                        )}
-                      </div>
-                      <span className="font-semibold">
-                        {formatCurrency(method.base_rate)}
-                      </span>
+
+                <div className="space-y-4 pt-1">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      Full Name <span className="text-destructive">*</span>
                     </label>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Payment Method */}
-            <div className="bg-card rounded-xl border border-border p-6">
-              <h2 className="text-lg font-semibold mb-4">
-                {t("checkout.paymentMethod")}
-              </h2>
-              {isLoadingPayments ? (
-                <div className="space-y-3">
-                  <Skeleton className="h-20 w-full" />
-                </div>
-              ) : paymentMethods.length === 0 ? (
-                <p className="text-muted-foreground">
-                  No payment methods available
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {paymentMethods.map((pm) => (
-                    <label
-                      key={pm.id}
-                      className={`flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
-                        formData.paymentMethodId === pm.id
-                          ? "border-accent bg-accent/5"
-                          : "border-border hover:border-accent"
-                      }`}
-                    >
+                    <div className="relative">
+                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <input
-                        type="radio"
-                        name="paymentMethodId"
-                        value={pm.id}
-                        checked={formData.paymentMethodId === pm.id}
+                        type="text"
+                        name="fullName"
+                        value={formData.fullName}
                         onChange={handleChange}
-                        className="w-4 h-4 text-accent mt-1"
+                        placeholder="Enter your full name"
+                        className="w-full bg-background border border-border/80 rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium text-foreground outline-none focus:border-accent transition-colors"
+                        required
                       />
-                      <div className="flex-1">
-                        <p className="font-medium">{pm.name}</p>
-                        {pm.description && (
-                          <p className="text-sm text-muted-foreground">
-                            {pm.description}
-                          </p>
-                        )}
-                        {pm.instructions &&
-                          formData.paymentMethodId === pm.id && (
-                            <div className="mt-2 p-3 bg-secondary/50 rounded-lg text-sm text-muted-foreground">
-                              {pm.instructions}
-                            </div>
-                          )}
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              )}
-
-              {/* Transaction ID input */}
-              {requiresTrxId && formData.paymentMethodId && (
-                <div className="mt-4">
-                  <label className="block text-sm font-medium mb-2">
-                    Transaction ID <span className="text-destructive">*</span>
-                  </label>
-                  <Input
-                    value={transactionId}
-                    onChange={(e) => setTransactionId(e.target.value)}
-                    placeholder="Enter your transaction/reference ID"
-                    required
-                  />
-                </div>
-              )}
-
-              {/* Partial Payment Breakdown */}
-              {hasPartial && formData.paymentMethodId && (
-                <div className="mt-4 p-4 border border-accent/30 bg-accent/5 rounded-lg">
-                  <h3 className="font-semibold text-sm mb-2">
-                    Payment Breakdown
-                  </h3>
-                  <div className="space-y-1 text-sm">
-                    <div className="flex justify-between">
-                      <span>Pay now (advance):</span>
-                      <span className="font-semibold">
-                        {formatCurrency(advanceAmount)}
-                      </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Pay on delivery:</span>
-                      <span className="font-semibold">
-                        {formatCurrency(dueOnDelivery)}
-                      </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      Phone Number <span className="text-destructive">*</span>
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        placeholder="01XXXXXXXXX"
+                        className="w-full bg-background border border-border/80 rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium text-foreground outline-none focus:border-accent transition-colors"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      Full Address (House, Road, Area) <span className="text-destructive">*</span>
+                    </label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3.5 top-3 h-4 w-4 text-muted-foreground" />
+                      <textarea
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        rows={3}
+                        placeholder="Enter full delivery address (e.g. House #12, Road #4, Dhanmondi, Dhaka)"
+                        className="w-full bg-background border border-border/80 rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium text-foreground outline-none focus:border-accent transition-colors resize-none"
+                        required
+                      />
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Order Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-card rounded-xl border border-border p-6 sticky top-24">
-              <h2 className="text-lg font-semibold mb-4">
-                {t("checkout.orderSummary")}
-              </h2>
-
-              <div className="space-y-3 mb-6 max-h-60 overflow-y-auto">
-                {items.map((item) => {
-                  const price = item.salePrice ?? item.price;
-                  return (
-                    <div key={item.id} className="flex gap-3">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        height={56}
-                        width={56}
-                        className="w-14 h-14 rounded-lg object-cover bg-secondary"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium line-clamp-1">
-                          {item.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {t("product.quantity")}: {item.quantity}
-                        </p>
-                      </div>
-                      <span className="text-sm font-medium">
-                        {formatCurrency(price * item.quantity)}
-                      </span>
-                    </div>
-                  );
-                })}
               </div>
 
-              <hr className="border-border mb-4" />
+              {/* Step 2: Shipping Method Selection */}
+              <div className="bg-card border border-border/80 rounded-2xl p-6 shadow-xs space-y-5">
+                <div className="flex items-center gap-3 border-b border-border/60 pb-4">
+                  <div className="w-8 h-8 rounded-xl bg-accent/10 text-accent font-extrabold flex items-center justify-center text-sm border border-accent/20">
+                    2
+                  </div>
+                  <div>
+                    <h2 className="font-extrabold text-base text-foreground flex items-center gap-2">
+                      <Truck className="h-4 w-4 text-accent" />
+                      <span>Shipping Method</span>
+                    </h2>
+                    <p className="text-xs text-muted-foreground">Select your preferred delivery region</p>
+                  </div>
+                </div>
 
-              <div className="mb-4">
+                {isLoadingMethods ? (
+                  <div className="space-y-3">
+                    <Skeleton className="h-16 w-full rounded-xl" />
+                    <Skeleton className="h-16 w-full rounded-xl" />
+                  </div>
+                ) : shippingMethods.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No shipping methods available</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    {shippingMethods.map((method) => {
+                      const isSelected = formData.shippingMethodId === method.id;
+                      return (
+                        <label
+                          key={method.id}
+                          className={`relative flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
+                            isSelected
+                              ? "border-accent bg-accent/5 shadow-2xs"
+                              : "border-border/80 hover:border-accent/40 bg-background"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <input
+                              type="radio"
+                              name="shippingMethodId"
+                              value={method.id}
+                              checked={isSelected}
+                              onChange={handleChange}
+                              className="w-4 h-4 text-accent accent-accent"
+                            />
+                            <div className="min-w-0">
+                              <p className="font-bold text-sm text-foreground truncate">{method.name}</p>
+                              {method.estimated_days && (
+                                <p className="text-[11px] text-muted-foreground font-medium">
+                                  Est: {method.estimated_days}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <span className="font-black text-sm text-accent shrink-0 pl-2">
+                            {formatCurrency(method.base_rate)}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Step 3: Payment Method Selection */}
+              <div className="bg-card border border-border/80 rounded-2xl p-6 shadow-xs space-y-5">
+                <div className="flex items-center gap-3 border-b border-border/60 pb-4">
+                  <div className="w-8 h-8 rounded-xl bg-accent/10 text-accent font-extrabold flex items-center justify-center text-sm border border-accent/20">
+                    3
+                  </div>
+                  <div>
+                    <h2 className="font-extrabold text-base text-foreground flex items-center gap-2">
+                      <CreditCard className="h-4 w-4 text-accent" />
+                      <span>Payment Method</span>
+                    </h2>
+                    <p className="text-xs text-muted-foreground">Choose how you want to pay</p>
+                  </div>
+                </div>
+
+                {isLoadingPayments ? (
+                  <Skeleton className="h-20 w-full rounded-xl" />
+                ) : paymentMethods.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No payment methods available</p>
+                ) : (
+                  <div className="space-y-3 pt-1">
+                    {paymentMethods.map((pm) => {
+                      const isSelected = formData.paymentMethodId === pm.id;
+                      return (
+                        <div key={pm.id} className="space-y-2">
+                          <label
+                            className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
+                              isSelected
+                                ? "border-accent bg-accent/5 shadow-2xs"
+                                : "border-border/80 hover:border-accent/40 bg-background"
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="paymentMethodId"
+                              value={pm.id}
+                              checked={isSelected}
+                              onChange={handleChange}
+                              className="w-4 h-4 text-accent accent-accent mt-0.5"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <p className="font-bold text-sm text-foreground">{pm.name}</p>
+                                {isSelected && (
+                                  <Badge className="bg-accent text-accent-foreground text-[10px] px-2 py-0">
+                                    Selected
+                                  </Badge>
+                                )}
+                              </div>
+                              {pm.description && (
+                                <p className="text-xs text-muted-foreground mt-0.5">{pm.description}</p>
+                              )}
+                              {pm.instructions && isSelected && (
+                                <div className="mt-3 p-3 bg-background border border-border/80 rounded-lg text-xs text-foreground/90 font-medium leading-relaxed">
+                                  {pm.instructions}
+                                </div>
+                              )}
+                            </div>
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Required Transaction ID Input */}
+                {requiresTrxId && formData.paymentMethodId && (
+                  <div className="pt-2 border-t border-border/60">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                      Transaction / Reference ID <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      value={transactionId}
+                      onChange={(e) => setTransactionId(e.target.value)}
+                      placeholder="Enter TrxID (e.g. 9J28XKL1)"
+                      className="bg-background border-border/80 rounded-xl"
+                      required
+                    />
+                  </div>
+                )}
+
+                {/* Partial Payment Rule Summary */}
+                {hasPartial && formData.paymentMethodId && (
+                  <div className="p-4 bg-accent/10 border border-accent/20 rounded-xl space-y-2">
+                    <h3 className="font-bold text-xs text-accent uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      <span>Partial Payment Option</span>
+                    </h3>
+                    <div className="flex justify-between text-xs font-medium text-foreground">
+                      <span>Advance Pay Now:</span>
+                      <span className="font-bold text-accent">{formatCurrency(advanceAmount)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs font-medium text-muted-foreground">
+                      <span>Due on Delivery:</span>
+                      <span className="font-bold text-foreground">{formatCurrency(dueOnDelivery)}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right Column: Order Summary Card */}
+            <div className="lg:col-span-1">
+              <div className="bg-card border border-border/80 rounded-2xl p-6 shadow-xs sticky top-24 space-y-5">
+                <div className="flex items-center justify-between border-b border-border/60 pb-4">
+                  <h2 className="font-extrabold text-base text-foreground flex items-center gap-2">
+                    <ShoppingBag className="h-4 w-4 text-accent" />
+                    <span>Order Summary</span>
+                  </h2>
+                  <Badge className="bg-secondary text-foreground text-xs font-bold">
+                    {items.reduce((sum, item) => sum + item.quantity, 0)} Items
+                  </Badge>
+                </div>
+
+                {/* Mini Item List */}
+                <div className="space-y-3 max-h-56 overflow-y-auto pr-1 scrollbar-thin">
+                  {items.map((item) => {
+                    const price = item.salePrice ?? item.price;
+                    return (
+                      <div key={item.id} className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary shrink-0 relative border border-border/60">
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-foreground line-clamp-1">
+                            {item.name}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground font-medium">
+                            Qty: {item.quantity} × {formatCurrency(price)}
+                          </p>
+                        </div>
+                        <span className="text-xs font-bold text-foreground shrink-0">
+                          {formatCurrency(price * item.quantity)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <hr className="border-border/60" />
+
+                {/* Coupon Input Component */}
                 <CouponInput
                   subtotal={subtotal}
                   onApply={handleApplyCoupon}
@@ -524,75 +650,88 @@ export default function CheckoutPage() {
                   appliedCoupon={appliedCoupon}
                   discountAmount={discountAmount}
                 />
-              </div>
 
-              <hr className="border-border mb-4" />
+                <hr className="border-border/60" />
 
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    {t("cart.subtotal")}
-                  </span>
-                  <span className="font-medium">
-                    {formatCurrency(subtotal)}
+                {/* Price Breakdown */}
+                <div className="space-y-2.5 text-xs font-medium">
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Subtotal</span>
+                    <span className="font-bold text-foreground">{formatCurrency(subtotal)}</span>
+                  </div>
+
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between text-accent font-bold">
+                      <span>Discount</span>
+                      <span>-{formatCurrency(discountAmount)}</span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Shipping Fee ({selectedShipping?.name || "Standard"})</span>
+                    <span className="font-bold text-foreground">{formatCurrency(shippingCost)}</span>
+                  </div>
+                </div>
+
+                <hr className="border-border/60" />
+
+                {/* Total */}
+                <div className="flex justify-between items-baseline pt-1">
+                  <div>
+                    <span className="block font-extrabold text-sm text-foreground">Total Payable</span>
+                    <span className="text-[11px] text-muted-foreground font-medium">Includes shipping & taxes</span>
+                  </div>
+                  <span className="text-2xl font-black tracking-tight text-accent">
+                    {formatCurrency(total)}
                   </span>
                 </div>
-                {discountAmount > 0 && (
-                  <div className="flex justify-between text-accent">
-                    <span>{t("checkout.discount") || "Discount"}</span>
-                    <span>-{formatCurrency(discountAmount)}</span>
+
+                {/* Partial breakdown if active */}
+                {hasPartial && (
+                  <div className="p-3 bg-secondary/50 rounded-xl space-y-1 text-[11px] font-medium border border-border/60">
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Advance Pay Now:</span>
+                      <span className="font-bold text-accent">{formatCurrency(advanceAmount)}</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Due on Delivery:</span>
+                      <span className="font-bold text-foreground">{formatCurrency(dueOnDelivery)}</span>
+                    </div>
                   </div>
                 )}
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    {t("cart.shipping")}
-                  </span>
-                  <span className="font-medium">
-                    {formatCurrency(shippingCost)}
-                  </span>
-                </div>
-              </div>
 
-              <hr className="border-border mb-4" />
+                {/* Place Order CTA Button */}
+                <Button
+                  type="submit"
+                  disabled={createOrder.isPending}
+                  className="w-full bg-accent text-accent-foreground hover:opacity-90 font-extrabold h-12 rounded-xl text-sm shadow-md transition-all flex items-center justify-center gap-2"
+                >
+                  {createOrder.isPending ? (
+                    <span>Processing Order...</span>
+                  ) : (
+                    <>
+                      <span>Complete Order</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
+                </Button>
 
-              <div className="flex justify-between mb-2">
-                <span className="font-semibold">{t("cart.total")}</span>
-                <span className="text-xl font-bold">
-                  {formatCurrency(total)}
-                </span>
-              </div>
-
-              {hasPartial && (
-                <div className="text-xs text-muted-foreground mb-4 space-y-1">
-                  <div className="flex justify-between">
-                    <span>Advance payment:</span>
-                    <span className="font-medium text-foreground">
-                      {formatCurrency(advanceAmount)}
-                    </span>
+                {/* Guarantees */}
+                <div className="pt-2 border-t border-border/60 space-y-2 text-[11px] text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="h-3.5 w-3.5 text-accent shrink-0" />
+                    <span>Safe & secure order placement</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Due on delivery:</span>
-                    <span className="font-medium text-foreground">
-                      {formatCurrency(dueOnDelivery)}
-                    </span>
+                  <div className="flex items-center gap-2">
+                    <PackageCheck className="h-3.5 w-3.5 text-accent shrink-0" />
+                    <span>Order confirmation sent instantly</span>
                   </div>
                 </div>
-              )}
-
-              <Button
-                type="submit"
-                size="lg"
-                className="btn-accent w-full"
-                disabled={createOrder.isPending}
-              >
-                {createOrder.isPending
-                  ? t("checkout.processing")
-                  : t("checkout.placeOrder")}
-              </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import {
   AlertDialog,
@@ -35,6 +36,7 @@ import {
 import { Edit, GripVertical, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function AdminSlider() {
   const { data: slides = [], isLoading, error } = useSliderSlides(false); // Get all slides including inactive
@@ -50,7 +52,7 @@ export default function AdminSlider() {
     image: "",
     heading: "",
     text: "",
-    cta_text: "Shop Now",
+    cta_text: "",
     cta_link: "/shop",
     sort_order: 0,
     is_active: true,
@@ -59,12 +61,12 @@ export default function AdminSlider() {
   const handleEdit = (slide: SliderSlide) => {
     setEditingSlide(slide);
     setFormData({
-      image: slide.image,
-      heading: slide.heading,
-      text: slide.text,
-      cta_text: slide.cta_text,
-      cta_link: slide.cta_link,
-      sort_order: slide.sort_order,
+      image: slide.image || "",
+      heading: slide.heading || "",
+      text: slide.text || "",
+      cta_text: slide.cta_text || "",
+      cta_link: slide.cta_link || "/shop",
+      sort_order: slide.sort_order || 0,
       is_active: slide.is_active,
     });
     setIsDialogOpen(true);
@@ -86,6 +88,11 @@ export default function AdminSlider() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!formData.image) {
+      toast.error("Please upload a slide image!");
+      return;
+    }
+
     try {
       if (editingSlide) {
         await updateSlide.mutateAsync({ id: editingSlide.id, ...formData });
@@ -105,7 +112,7 @@ export default function AdminSlider() {
       image: "",
       heading: "",
       text: "",
-      cta_text: "Shop Now",
+      cta_text: "",
       cta_link: "/shop",
       sort_order: slides.length,
       is_active: true,
@@ -128,7 +135,7 @@ export default function AdminSlider() {
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">Hero Slider</h1>
           <p className="text-muted-foreground mt-1">
-            Manage homepage hero slider images
+            Manage homepage hero slider images (heading and text are optional)
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -153,7 +160,7 @@ export default function AdminSlider() {
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  Slide Image *
+                  Slide Image <span className="text-destructive">*</span>
                 </label>
                 <ImageUpload
                   value={formData.image}
@@ -161,9 +168,10 @@ export default function AdminSlider() {
                   folder="slider"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  Heading *
+                  Heading <span className="text-muted-foreground text-xs font-normal">(Optional)</span>
                 </label>
                 <input
                   type="text"
@@ -172,11 +180,14 @@ export default function AdminSlider() {
                     setFormData({ ...formData, heading: e.target.value })
                   }
                   className="input-shop"
-                  required
+                  placeholder="e.g. Summer Collection (Leave blank for image only)"
                 />
               </div>
+
               <div>
-                <label className="block text-sm font-medium mb-2">Text *</label>
+                <label className="block text-sm font-medium mb-2">
+                  Text / Subtitle <span className="text-muted-foreground text-xs font-normal">(Optional)</span>
+                </label>
                 <input
                   type="text"
                   value={formData.text}
@@ -184,13 +195,14 @@ export default function AdminSlider() {
                     setFormData({ ...formData, text: e.target.value })
                   }
                   className="input-shop"
-                  required
+                  placeholder="e.g. Get up to 50% discount (Leave blank for image only)"
                 />
               </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    CTA Text *
+                    CTA Button Text <span className="text-muted-foreground text-xs font-normal">(Optional)</span>
                   </label>
                   <input
                     type="text"
@@ -199,13 +211,12 @@ export default function AdminSlider() {
                       setFormData({ ...formData, cta_text: e.target.value })
                     }
                     className="input-shop"
-                    placeholder="Shop Now"
-                    required
+                    placeholder="e.g. Shop Now"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    CTA Link *
+                    CTA Link <span className="text-muted-foreground text-xs font-normal">(Optional)</span>
                   </label>
                   <input
                     type="text"
@@ -215,10 +226,10 @@ export default function AdminSlider() {
                     }
                     className="input-shop"
                     placeholder="/shop"
-                    required
                   />
                 </div>
               </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">
@@ -230,7 +241,7 @@ export default function AdminSlider() {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        sort_order: parseInt(e.target.value),
+                        sort_order: parseInt(e.target.value) || 0,
                       })
                     }
                     className="input-shop"
@@ -246,6 +257,7 @@ export default function AdminSlider() {
                   <label className="text-sm font-medium">Active</label>
                 </div>
               </div>
+
               <div className="flex gap-3 pt-4">
                 <Button
                   type="submit"
@@ -281,10 +293,10 @@ export default function AdminSlider() {
             >
               <div className="flex flex-col sm:flex-row">
                 {/* Image Preview */}
-                <div className="sm:w-64 h-40 sm:h-auto shrink-0">
+                <div className="sm:w-64 h-40 sm:h-auto shrink-0 relative bg-secondary">
                   <Image
                     src={slide.image || "/placeholder.svg"}
-                    alt={slide.heading}
+                    alt={slide.heading || "Slide Banner"}
                     width={400}
                     height={300}
                     className="w-full h-full object-cover"
@@ -301,13 +313,23 @@ export default function AdminSlider() {
                       <p className="text-sm text-muted-foreground mb-1">
                         Slide {index + 1} {!slide.is_active && "(Inactive)"}
                       </p>
-                      <h3 className="font-semibold">{slide.heading}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {slide.text}
-                      </p>
-                      <p className="text-xs text-accent mt-2">
-                        {slide.cta_text} → {slide.cta_link}
-                      </p>
+                      <h3 className="font-semibold">
+                        {slide.heading || "Banner Image (No Title)"}
+                      </h3>
+                      {slide.text ? (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {slide.text}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-muted-foreground/70 italic mt-0.5">
+                          Image-only banner without text overlay
+                        </p>
+                      )}
+                      {slide.cta_link && (
+                        <p className="text-xs text-accent mt-1.5">
+                          Link: {slide.cta_link}
+                        </p>
+                      )}
                     </div>
                   </div>
 

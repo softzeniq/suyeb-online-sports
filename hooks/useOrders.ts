@@ -118,10 +118,36 @@ export const useCreateOrder = () => {
 
       if (itemsError) throw itemsError;
 
+      // Automatically deduct product stock in database
+      for (const item of items) {
+        if (item.product_id) {
+          try {
+            const { data: prod } = await supabase
+              .from("products")
+              .select("stock")
+              .eq("id", item.product_id)
+              .maybeSingle();
+
+            if (prod) {
+              const currentStock = prod.stock || 0;
+              const newStock = Math.max(0, currentStock - item.quantity);
+              await supabase
+                .from("products")
+                .update({ stock: newStock })
+                .eq("id", item.product_id);
+            }
+          } catch (e) {
+            console.error("Failed to deduct stock for product:", item.product_id, e);
+          }
+        }
+      }
+
       return orderData;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["product"] });
     },
     onError: (error) => {
       toast.error("Failed to create order: " + error.message);

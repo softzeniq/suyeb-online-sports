@@ -1,4 +1,6 @@
 "use client";
+
+import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,8 +22,6 @@ import {
   useTemplateSections,
   useUpdateSection,
 } from "@/hooks/useHomePageTemplates";
-import { ImageUpload } from "@/components/admin/ImageUpload";
-
 import {
   ChevronDown,
   ChevronUp,
@@ -140,7 +140,6 @@ export default function AdminHomepage() {
   };
 
   const handleSave = async () => {
-    // Save sort order + enabled for all sections
     await bulkUpdate.mutateAsync(
       localSections.map((s) => ({
         id: s.id,
@@ -148,7 +147,6 @@ export default function AdminHomepage() {
         enabled: s.enabled,
       })),
     );
-    // Save individual field updates
     for (const s of localSections) {
       const original = sections.find((o) => o.id === s.id);
       if (
@@ -193,7 +191,7 @@ export default function AdminHomepage() {
             <LayoutTemplate className="h-6 w-6" /> Homepage Settings
           </h1>
           <p className="text-muted-foreground mt-1">
-            Select and configure your homepage template
+            Select and configure your homepage layout & promotional banners
           </p>
         </div>
       </div>
@@ -369,12 +367,20 @@ export default function AdminHomepage() {
                       {section.section_type === "featured_products" && (
                         <div className="mt-4 border-t pt-4 space-y-4">
                           <h4 className="text-xs font-bold text-accent tracking-wider uppercase">
-                            Promo Banners Configuration (Below Featured Products)
+                            2 Promo Banners Configuration (Below Featured Products)
                           </h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* Banner 1 */}
                             <div className="border rounded-lg p-3 space-y-2 bg-muted/20">
                               <p className="text-xs font-semibold text-accent">Banner 1 (Left)</p>
+                              <div>
+                                <label className="block text-[11px] font-medium text-muted-foreground mb-1">Custom Background Image</label>
+                                <ImageUpload
+                                  value={section.settings_json?.banner1_image || ""}
+                                  onChange={(url) => updateSectionSettingsField(section.id, "banner1_image", url)}
+                                  folder="banners"
+                                />
+                              </div>
                               <Input
                                 value={section.settings_json?.banner1_badge || ""}
                                 onChange={(e) => updateSectionSettingsField(section.id, "banner1_badge", e.target.value)}
@@ -402,7 +408,7 @@ export default function AdminHomepage() {
                               <Input
                                 value={section.settings_json?.banner1_link || ""}
                                 onChange={(e) => updateSectionSettingsField(section.id, "banner1_link", e.target.value)}
-                                placeholder="Link (e.g., /products)"
+                                placeholder="Link (e.g., /shop)"
                                 className="h-8 text-xs"
                               />
                             </div>
@@ -410,6 +416,14 @@ export default function AdminHomepage() {
                             {/* Banner 2 */}
                             <div className="border rounded-lg p-3 space-y-2 bg-muted/20">
                               <p className="text-xs font-semibold text-accent">Banner 2 (Right)</p>
+                              <div>
+                                <label className="block text-[11px] font-medium text-muted-foreground mb-1">Custom Background Image</label>
+                                <ImageUpload
+                                  value={section.settings_json?.banner2_image || ""}
+                                  onChange={(url) => updateSectionSettingsField(section.id, "banner2_image", url)}
+                                  folder="banners"
+                                />
+                              </div>
                               <Input
                                 value={section.settings_json?.banner2_badge || ""}
                                 onChange={(e) => updateSectionSettingsField(section.id, "banner2_badge", e.target.value)}
@@ -437,14 +451,13 @@ export default function AdminHomepage() {
                               <Input
                                 value={section.settings_json?.banner2_link || ""}
                                 onChange={(e) => updateSectionSettingsField(section.id, "banner2_link", e.target.value)}
-                                placeholder="Link (e.g., /products)"
+                                placeholder="Link (e.g., /shop)"
                                 className="h-8 text-xs"
                               />
                             </div>
                           </div>
                         </div>
                       )}
-
 
                     </div>
 

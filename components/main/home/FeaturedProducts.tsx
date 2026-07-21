@@ -49,15 +49,15 @@ export function FeaturedProducts() {
             </h2>
           </div>
           <Link
-            href="/products"
-            className="hidden sm:flex items-center text-sm font-medium text-accent hover:underline"
+            href="/shop?filter=featured"
+            className="hidden sm:flex items-center gap-2 text-sm font-medium text-accent hover:underline"
           >
             {t("common.viewAll")} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
-        <div className="product-grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-3">
-          {products.map((product, index) => (
+        <div className="product-grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-3">
+          {products.slice(0, 10).map((product, index) => (
             <div
               key={product.id}
               className={`reveal-base stagger-${index + 1} ${isVisible ? "reveal-visible" : ""}`}
@@ -68,7 +68,7 @@ export function FeaturedProducts() {
         </div>
 
         <Link
-          href="/products"
+          href="/shop?filter=featured"
           className="mt-8 flex sm:hidden items-center justify-center gap-2 text-sm font-medium text-accent hover:underline"
         >
           {t("common.viewAll")} <ArrowRight className="h-4 w-4" />

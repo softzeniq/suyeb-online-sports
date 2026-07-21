@@ -79,7 +79,7 @@ export function FeaturedCategories() {
             </h2>
           </div>
           <Link
-            href="/categories"
+            href="/shop"
             className="flex items-center gap-2 text-sm font-semibold text-accent hover:underline"
           >
             {t("common.viewAll")} <ArrowRight className="h-4 w-4" />
@@ -94,7 +94,7 @@ export function FeaturedCategories() {
               className={`flex flex-col items-center gap-2 select-none group reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""}`}
             >
               <Link
-                href={`/category/${category.slug}`}
+                href={`/shop?category=${category.slug}`}
                 className="w-full aspect-square bg-secondary/30 border border-border/80 rounded-xl flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:shadow-foreground/5 hover:border-accent/40 relative overflow-hidden"
               >
                 <Image
@@ -107,7 +107,7 @@ export function FeaturedCategories() {
               </Link>
 
               {/* Category Name (Outside/below the card) */}
-              <Link href={`/category/${category.slug}`} className="block w-full text-center">
+              <Link href={`/shop?category=${category.slug}`} className="block w-full text-center">
                 <span className="text-xs md:text-sm font-bold tracking-tight text-foreground/90 group-hover:text-accent transition-colors line-clamp-1 px-0.5 max-w-full leading-none">
                   {category.name}
                 </span>
@@ -116,67 +116,34 @@ export function FeaturedCategories() {
           ))}
         </div>
 
-        {/* Mobile View: 2-Row Independent Horizontal Scroll Slide */}
-        <div className="flex md:hidden flex-col gap-3">
-          {/* Row 1 */}
-          <div className="flex items-center gap-3 overflow-x-auto pb-1 px-1 scrollbar-none snap-x snap-mandatory scroll-smooth w-full select-none">
-            {mobileRow1.map((category, index) => (
-              <div
-                key={category.id}
-                className={`flex-shrink-0 w-24 flex flex-col items-center gap-1.5 snap-start reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""}`}
+        {/* Mobile View: Ultra-responsive 4-column Category Grid */}
+        <div className="grid md:hidden grid-cols-4 gap-2.5 sm:gap-3">
+          {categories.slice(0, 8).map((category, index) => (
+            <div
+              key={category.id}
+              className={`flex flex-col items-center gap-1.5 text-center group reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""}`}
+            >
+              <Link
+                href={`/shop?category=${category.slug}`}
+                className="w-full aspect-square bg-secondary/40 border border-border/70 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-2xs active:scale-95 transition-all duration-300 hover:border-accent/40"
               >
-                <Link
-                  href={`/category/${category.slug}`}
-                  className="w-full aspect-square bg-secondary/30 border border-border/80 rounded-xl flex items-center justify-center shadow-sm active:scale-95 transition-all duration-300 hover:border-accent/30 relative overflow-hidden"
-                >
-                  <Image
-                    src={category.image}
-                    alt={category.name}
-                    fill
-                    className="object-cover transition-transform duration-500"
-                    sizes="96px"
-                  />
-                </Link>
+                <Image
+                  src={category.image}
+                  alt={category.name}
+                  fill
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  sizes="(max-width: 640px) 25vw, 120px"
+                />
+              </Link>
 
-                {/* Name (Outside/below the card) */}
-                <Link href={`/category/${category.slug}`} className="block w-full text-center">
-                  <span className="text-[10px] font-bold tracking-tight text-foreground/90 line-clamp-2 px-0.5 leading-tight">
-                    {category.name}
-                  </span>
-                </Link>
-              </div>
-            ))}
-          </div>
-
-          {/* Row 2 */}
-          <div className="flex items-center gap-3 overflow-x-auto pb-1 px-1 scrollbar-none snap-x snap-mandatory scroll-smooth w-full select-none">
-            {mobileRow2.map((category, index) => (
-              <div
-                key={category.id}
-                className={`flex-shrink-0 w-24 flex flex-col items-center gap-1.5 snap-start reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""}`}
-              >
-                <Link
-                  href={`/category/${category.slug}`}
-                  className="w-full aspect-square bg-secondary/30 border border-border/80 rounded-xl flex items-center justify-center shadow-sm active:scale-95 transition-all duration-300 hover:border-accent/30 relative overflow-hidden"
-                >
-                  <Image
-                    src={category.image}
-                    alt={category.name}
-                    fill
-                    className="object-cover transition-transform duration-500"
-                    sizes="96px"
-                  />
-                </Link>
-
-                {/* Name (Outside/below the card) */}
-                <Link href={`/category/${category.slug}`} className="block w-full text-center">
-                  <span className="text-[10px] font-bold tracking-tight text-foreground/90 line-clamp-2 px-0.5 leading-tight">
-                    {category.name}
-                  </span>
-                </Link>
-              </div>
-            ))}
-          </div>
+              {/* Name */}
+              <Link href={`/shop?category=${category.slug}`} className="block w-full text-center">
+                <span className="text-[11px] font-bold tracking-tight text-foreground/90 group-hover:text-accent transition-colors line-clamp-1 px-0.5 leading-tight">
+                  {category.name}
+                </span>
+              </Link>
+            </div>
+          ))}
         </div>
       </div>
     </section>

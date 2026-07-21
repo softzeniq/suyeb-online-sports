@@ -68,7 +68,7 @@ export function PromoOffers() {
         badge: hasDiscount ? `${discountPercent}% Off` : "Special Offer",
         title: product.name,
         subtitle: product.short_description || product.category?.name || "Good Quality",
-        link: `/product/${product.slug}`,
+        link: `/products/${product.slug}`,
         image: product.images[0] || "/placeholder.svg",
         bgcolor: bgColors[idx % bgColors.length],
       };

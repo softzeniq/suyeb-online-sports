@@ -38,7 +38,14 @@ import {
   useProducts,
   useUpdateProduct,
 } from "@/hooks/useShopData";
-import { Edit, MoreHorizontal, Plus, Search, Trash2 } from "lucide-react";
+import {
+  useAdminCreateReview,
+  useHideStockMap,
+  useProductRatingsMap,
+  useSetHideStock,
+  useSetProductRating,
+} from "@/hooks/useProductReviews";
+import { Edit, MoreHorizontal, Plus, Search, Star, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -59,6 +66,11 @@ export default function AdminProducts() {
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
   const deleteProduct = useDeleteProduct();
+  const adminCreateReview = useAdminCreateReview();
+  const { data: ratingsMap = {} } = useProductRatingsMap();
+  const { data: hideStockMap = {} } = useHideStockMap();
+  const setProductRating = useSetProductRating();
+  const setHideStock = useSetHideStock();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -85,6 +97,7 @@ export default function AdminProducts() {
     is_active: true,
     is_variable: false,
     hide_stock: false,
+    rating: 5,
     specifications: [] as { label: string; value: string }[],
   });
 
@@ -96,6 +109,9 @@ export default function AdminProducts() {
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
+    const existingRating = ratingsMap[product.id] != null ? Number(ratingsMap[product.id]) : 5;
+    const existingHideStock = hideStockMap[product.id] ?? (product as any).hide_stock ?? false;
+
     setFormData({
       name: product.name,
       slug: product.slug,
@@ -113,7 +129,8 @@ export default function AdminProducts() {
       is_offer: (product as any).is_offer || false,
       is_active: (product as any).is_active ?? true,
       is_variable: (product as any).is_variable ?? false,
-      hide_stock: (product as any).hide_stock ?? false,
+      hide_stock: existingHideStock,
+      rating: existingRating,
       specifications: (product as any).specifications || [],
     });
     setIsDialogOpen(true);
@@ -183,14 +200,31 @@ export default function AdminProducts() {
     };
 
     try {
+      let targetProductId = editingProduct?.id;
+
       if (editingProduct) {
         await updateProduct.mutateAsync({
           id: editingProduct.id,
           ...productData,
         });
       } else {
-        await createProduct.mutateAsync(productData as any);
+        const newProd = await createProduct.mutateAsync(productData as any);
+        if (newProd?.id) targetProductId = newProd.id;
       }
+
+      // Save card rating & hide stock to store_settings
+      if (targetProductId) {
+        await setProductRating.mutateAsync({
+          productId: targetProductId,
+          rating: formData.rating,
+        });
+
+        await setHideStock.mutateAsync({
+          productId: targetProductId,
+          hideStock: formData.hide_stock,
+        });
+      }
+
       setIsDialogOpen(false);
       setEditingProduct(null);
       resetForm();
@@ -218,6 +252,7 @@ export default function AdminProducts() {
       is_active: true,
       is_variable: false,
       hide_stock: false,
+      rating: 5,
       specifications: [],
     });
   };
@@ -469,6 +504,30 @@ export default function AdminProducts() {
                   >
                     <Plus className="h-4 w-4 mr-1" /> Add Spec
                   </Button>
+                </div>
+
+                {/* Product Card Rating Selection */}
+                <div className="border-t border-border/60 pt-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-semibold flex items-center gap-1.5">
+                      <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                      <span>Product Card Rating</span>
+                    </label>
+                    <span className="text-xs text-muted-foreground">Select rating for product card</span>
+                  </div>
+                  <select
+                    value={formData.rating}
+                    onChange={(e) =>
+                      setFormData({ ...formData, rating: Number(e.target.value) })
+                    }
+                    className="input-shop font-bold text-xs bg-card py-2.5 cursor-pointer"
+                  >
+                    <option value={5}>⭐⭐⭐⭐⭐ 5.0 Stars (Default)</option>
+                    <option value={4.5}>⭐⭐⭐⭐⭐ 4.5 Stars</option>
+                    <option value={4}>⭐⭐⭐⭐ 4.0 Stars</option>
+                    <option value={3.5}>⭐⭐⭐ 3.5 Stars</option>
+                    <option value={3}>⭐⭐⭐ 3.0 Stars</option>
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">

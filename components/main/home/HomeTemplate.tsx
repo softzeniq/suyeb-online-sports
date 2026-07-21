@@ -45,14 +45,14 @@ function NewArrivalsSection({ section }: { section: HomepageSection }) {
             </h2>
           </div>
           <Link
-            href="/products?filter=new"
+            href="/shop?filter=new"
             className="hidden sm:flex items-center gap-2 text-sm font-medium text-accent hover:underline"
           >
             View All <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-        <div className="product-grid product-grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-3">
-          {newArrivals.map((product, index) => (
+        <div className="product-grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-3">
+          {newArrivals.slice(0, 10).map((product, index) => (
             <div
               key={product.id}
               className={`reveal-base stagger-${index + 1} ${isVisible ? "reveal-visible" : ""}`}

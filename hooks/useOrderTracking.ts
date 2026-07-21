@@ -2,37 +2,45 @@ import { useQuery } from "@tanstack/react-query";
 import { createClient } from "../utils/supabase/client";
 
 const supabase = createClient();
-export const useOrderTracking = (orderNumber: string, phone: string) => {
-  return useQuery({
-    queryKey: ["order_tracking", orderNumber, phone],
-    queryFn: async () => {
-      // Clean phone number - remove spaces, dashes, etc.
-      const cleanPhone = phone.replace(/[\s\-\(\)]/g, "");
 
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*, order_items(*)")
-        .eq("order_number", orderNumber)
+export const useOrderTracking = (searchQuery: string) => {
+  return useQuery({
+    queryKey: ["order_tracking", searchQuery],
+    queryFn: async () => {
+      const cleanInput = searchQuery ? searchQuery.trim() : "";
+      if (!cleanInput) throw new Error("Please enter your Phone Number or Order ID.");
+
+      const isDigitsOnly = /^\d+$/.test(cleanInput);
+      const cleanPhone = cleanInput.replace(/[\s\-\(\)]/g, "");
+
+      let query = supabase.from("orders").select("*, order_items(*)");
+
+      if (cleanInput.toUpperCase().startsWith("ORD-")) {
+        query = query.eq("order_number", cleanInput.toUpperCase());
+      } else if (isDigitsOnly && cleanInput.length >= 8) {
+        // Search by phone number (e.g. 01712345678)
+        query = query.ilike("customer_phone", `%${cleanPhone.slice(-8)}%`);
+      } else {
+        // Search by either order_number or customer_phone
+        query = query.or(
+          `order_number.eq.${cleanInput},order_number.eq.ORD-${cleanInput},customer_phone.ilike.%${cleanPhone}%`,
+        );
+      }
+
+      const { data, error } = await query
+        .order("created_at", { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (error) throw error;
-      if (!data) throw new Error("Order not found");
-
-      // Verify phone matches (last 4 digits or full match)
-      const orderPhone = data.customer_phone.replace(/[\s\-\(\)]/g, "");
-      const phoneMatches =
-        orderPhone === cleanPhone ||
-        orderPhone.endsWith(cleanPhone.slice(-4)) ||
-        cleanPhone.endsWith(orderPhone.slice(-4));
-
-      if (!phoneMatches) {
-        throw new Error("Phone number does not match this order");
-      }
+      if (!data)
+        throw new Error(
+          "No order found matching your Phone Number or Order ID. Please check and try again.",
+        );
 
       return data;
     },
-    enabled:
-      !!orderNumber && !!phone && orderNumber.length > 3 && phone.length >= 4,
+    enabled: !!searchQuery && searchQuery.trim().length >= 4,
     retry: false,
   });
 };

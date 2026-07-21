@@ -22,6 +22,7 @@ import {
   useCategories,
   useCategoryProductCounts,
   useFilteredShopProducts,
+  useProducts,
 } from "@/hooks/useShopData";
 import {
   ArrowUpDown,
@@ -41,6 +42,7 @@ import {
   ShieldCheck,
   SlidersHorizontal,
   Sparkles,
+  Star,
   Tag,
   Truck,
   X,
@@ -57,7 +59,9 @@ export default function ShopPage() {
 
   // Filter States
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    searchParams.get("category") || "all"
+  );
   const [selectedStatus, setSelectedStatus] = useState<string>(
     searchParams.get("filter") || "all"
   );
@@ -69,14 +73,24 @@ export default function ShopPage() {
   // Layout & Pagination States
   const [gridCols, setGridCols] = useState<"2" | "3" | "4" | "list">("3");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 12;
+  const itemsPerPage = 20;
 
-  // Sync search query and URL filter parameter
+  // Sync search query, category, and URL filter parameters
   useEffect(() => {
     setSearchQuery(searchParams.get("search") || "");
+
+    const urlCategory = searchParams.get("category");
+    if (urlCategory) {
+      setSelectedCategory(urlCategory);
+    } else {
+      setSelectedCategory("all");
+    }
+
     const urlFilter = searchParams.get("filter");
-    if (urlFilter && ["sale", "new", "bestsellers"].includes(urlFilter)) {
+    if (urlFilter && ["sale", "new", "bestsellers", "featured"].includes(urlFilter)) {
       setSelectedStatus(urlFilter);
+    } else if (!urlFilter) {
+      setSelectedStatus("all");
     }
   }, [searchParams]);
 
@@ -90,8 +104,27 @@ export default function ShopPage() {
   const numMaxPrice = maxPrice !== "" && !isNaN(Number(maxPrice)) ? Number(maxPrice) : null;
 
   // Backend Supabase Queries
+  const { data: allProducts = [] } = useProducts();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { data: categoryCounts = {} } = useCategoryProductCounts();
+
+  // Dynamic Status Flags (only show status tabs if products exist in dashboard)
+  const hasSaleProducts = useMemo(
+    () => allProducts.some((p) => p.sale_price && p.sale_price < p.price),
+    [allProducts]
+  );
+  const hasNewProducts = useMemo(
+    () => allProducts.some((p) => p.is_new),
+    [allProducts]
+  );
+  const hasBestSellers = useMemo(
+    () => allProducts.some((p) => p.is_best_seller),
+    [allProducts]
+  );
+  const hasFeaturedProducts = useMemo(
+    () => allProducts.some((p) => p.is_featured),
+    [allProducts]
+  );
   const { data, isLoading: productsLoading } = useFilteredShopProducts({
     searchQuery,
     categorySlug: selectedCategory,
@@ -144,10 +177,11 @@ export default function ShopPage() {
             Categories
           </h3>
         </div>
-        <div className="space-y-1">
+        {/* Category List: Adjust max-h-[320px] below to change number of categories visible upfront before scrolling */}
+        <div className="space-y-1 max-h-[320px] overflow-y-auto pr-1 text-xs font-medium scrollbar-thin">
           <button
             onClick={() => setSelectedCategory("all")}
-            className={`flex items-center justify-between w-full px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCategory === "all"
+            className={`flex items-center justify-between w-full px-3.5 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCategory === "all"
               ? "bg-accent text-accent-foreground shadow-sm font-semibold"
               : "text-foreground/80 hover:bg-secondary hover:text-foreground"
               }`}
@@ -160,7 +194,7 @@ export default function ShopPage() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.slug)}
-                className={`flex items-center justify-between w-full px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCategory === cat.slug
+                className={`flex items-center justify-between w-full px-3.5 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCategory === cat.slug
                   ? "bg-accent text-accent-foreground shadow-sm font-semibold"
                   : "text-foreground/80 hover:bg-secondary hover:text-foreground"
                   }`}
@@ -325,7 +359,7 @@ export default function ShopPage() {
             </div>
 
             {/* Feature Trust Badges */}
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-background px-3 py-1.5 rounded-full border border-border/80 shadow-xs">
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
                 <span>100% Authentic</span>
@@ -337,55 +371,69 @@ export default function ShopPage() {
             </div>
           </div>
 
-          {/* Quick Collection Status Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-4 scrollbar-none border-t border-border/40 mt-4">
+          {/* Quick Collection Status Tabs (Dynamically rendered on full-width sub-row) */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-3.5 scrollbar-none border-t border-border/40 mt-4">
             <button
               onClick={() => setSelectedStatus("all")}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${selectedStatus === "all"
+              className={`px-3.5 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${selectedStatus === "all"
                 ? "bg-accent text-accent-foreground shadow-sm font-semibold"
                 : "bg-background border border-border/80 text-foreground/80 hover:bg-secondary"
                 }`}
             >
               <span>All Collection</span>
             </button>
-            <button
-              onClick={() => setSelectedStatus("sale")}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${selectedStatus === "sale"
-                ? "bg-amber-500 text-white shadow-sm font-semibold"
-                : "bg-background border border-border/80 text-foreground/80 hover:bg-amber-500/10 hover:text-amber-600"
-                }`}
-            >
-              <Flame className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-              <span>On Sale</span>
-            </button>
-            <button
-              onClick={() => setSelectedStatus("new")}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${selectedStatus === "new"
-                ? "bg-blue-600 text-white shadow-sm font-semibold"
-                : "bg-background border border-border/80 text-foreground/80 hover:bg-blue-500/10 hover:text-blue-600"
-                }`}
-            >
-              <Sparkles className="h-3.5 w-3.5 text-blue-500" />
-              <span>New Arrivals</span>
-            </button>
-            <button
-              onClick={() => setSelectedStatus("bestsellers")}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${selectedStatus === "bestsellers"
-                ? "bg-emerald-600 text-white shadow-sm font-semibold"
-                : "bg-background border border-border/80 text-foreground/80 hover:bg-emerald-500/10 hover:text-emerald-600"
-                }`}
-            >
-              <Badge className="bg-emerald-500 text-white text-[10px] px-1 py-0 h-4">TOP</Badge>
-              <span>Best Sellers</span>
-            </button>
+            {hasSaleProducts && (
+              <button
+                onClick={() => setSelectedStatus("sale")}
+                className={`px-3.5 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all ${selectedStatus === "sale"
+                  ? "bg-accent text-accent-foreground shadow-sm font-semibold"
+                  : "bg-background border border-border/80 text-foreground/80 hover:bg-accent/10 hover:text-accent"
+                  }`}
+              >
+                <span>On Sale</span>
+              </button>
+            )}
+            {hasNewProducts && (
+              <button
+                onClick={() => setSelectedStatus("new")}
+                className={`px-3.5 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all ${selectedStatus === "new"
+                  ? "bg-accent text-accent-foreground shadow-sm font-semibold"
+                  : "bg-background border border-border/80 text-foreground/80 hover:bg-accent/10 hover:text-accent"
+                  }`}
+              >
+                <span>New Arrivals</span>
+              </button>
+            )}
+            {hasBestSellers && (
+              <button
+                onClick={() => setSelectedStatus("bestsellers")}
+                className={`px-3.5 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all ${selectedStatus === "bestsellers"
+                  ? "bg-accent text-accent-foreground shadow-sm font-semibold"
+                  : "bg-background border border-border/80 text-foreground/80 hover:bg-accent/10 hover:text-accent"
+                  }`}
+              >
+                <span>Best Sellers</span>
+              </button>
+            )}
+            {hasFeaturedProducts && (
+              <button
+                onClick={() => setSelectedStatus("featured")}
+                className={`px-3.5 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all ${selectedStatus === "featured"
+                  ? "bg-accent text-accent-foreground shadow-sm font-semibold"
+                  : "bg-background border border-border/80 text-foreground/80 hover:bg-accent/10 hover:text-accent"
+                  }`}
+              >
+                <span>Featured</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       <div className="container-shop pb-16">
         <div className="flex flex-col lg:flex-row gap-8 items-start">
-          {/* Sidebar - Desktop Sticky Pinned Under Header */}
-          <aside className="hidden lg:block w-64 shrink-0 sticky top-20 self-start z-30">
+          {/* Sidebar - Desktop Fixed Sticky with Independent Category Scroll */}
+          <aside className="hidden lg:block w-64 shrink-0 sticky top-24 self-start z-30">
             <div className="bg-card border border-border/80 rounded-2xl p-5 shadow-xs">
               <FilterContent />
             </div>
@@ -629,55 +677,64 @@ export default function ShopPage() {
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-10">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={currentPage === 1}
-                  onClick={() => {
-                    setCurrentPage((prev) => Math.max(prev - 1, 1));
-                    window.scrollTo({ top: 200, behavior: "smooth" });
-                  }}
-                  className="rounded-xl text-xs gap-1"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  <span>Prev</span>
-                </Button>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-12 pt-6 border-t border-border/60">
+                <p className="text-xs text-muted-foreground font-medium">
+                  Showing <span className="font-bold text-foreground">{(currentPage - 1) * itemsPerPage + 1}</span> to{" "}
+                  <span className="font-bold text-foreground">{Math.min(currentPage * itemsPerPage, totalProductsCount)}</span> of{" "}
+                  <span className="font-bold text-foreground">{totalProductsCount}</span> products
+                </p>
 
                 <div className="flex items-center gap-1.5">
-                  {Array.from({ length: totalPages }).map((_, idx) => {
-                    const pageNum = idx + 1;
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={() => {
-                          setCurrentPage(pageNum);
-                          window.scrollTo({ top: 200, behavior: "smooth" });
-                        }}
-                        className={`w-8 h-8 rounded-xl text-xs font-semibold transition-all ${currentPage === pageNum
-                          ? "bg-accent text-accent-foreground shadow-xs"
-                          : "hover:bg-secondary text-foreground/80"
-                          }`}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  })}
-                </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={currentPage === 1}
+                    onClick={() => {
+                      setCurrentPage((prev) => Math.max(prev - 1, 1));
+                      window.scrollTo({ top: 200, behavior: "smooth" });
+                    }}
+                    className="rounded-xl text-xs gap-1 h-9 px-3 border-border/80 cursor-pointer disabled:opacity-40"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    <span className="hidden sm:inline">Prev</span>
+                  </Button>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={currentPage === totalPages}
-                  onClick={() => {
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-                    window.scrollTo({ top: 200, behavior: "smooth" });
-                  }}
-                  className="rounded-xl text-xs gap-1"
-                >
-                  <span>Next</span>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }).map((_, idx) => {
+                      const pageNum = idx + 1;
+                      const isCurrent = currentPage === pageNum;
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => {
+                            setCurrentPage(pageNum);
+                            window.scrollTo({ top: 200, behavior: "smooth" });
+                          }}
+                          className={`w-9 h-9 rounded-xl text-xs font-bold transition-all cursor-pointer ${isCurrent
+                            ? "bg-accent text-accent-foreground shadow-sm scale-105"
+                            : "bg-background border border-border/80 text-foreground/80 hover:bg-secondary hover:text-foreground"
+                            }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={currentPage === totalPages}
+                    onClick={() => {
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+                      window.scrollTo({ top: 200, behavior: "smooth" });
+                    }}
+                    className="rounded-xl text-xs gap-1 h-9 px-3 border-border/80 cursor-pointer disabled:opacity-40"
+                  >
+                    <span className="hidden sm:inline">Next</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             )}
           </div>

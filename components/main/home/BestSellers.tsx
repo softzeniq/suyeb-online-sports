@@ -15,7 +15,7 @@ export function BestSellers() {
     return (
       <section className="section-padding">
         <div className="container-shop">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-2">
             <div>
               <h2 className="text-xl md:text-2xl">
                 {t("home.bestSellers")}
@@ -49,15 +49,15 @@ export function BestSellers() {
             </h2>
           </div>
           <Link
-            href="/products?filter=bestsellers"
+            href="/shop?filter=bestsellers"
             className="hidden sm:flex items-center gap-2 text-sm font-medium text-accent hover:underline"
           >
             {t("common.viewAll")} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
-        <div className="product-grid product-grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-3">
-          {products.map((product, index) => (
+        <div className="product-grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-3">
+          {products.slice(0, 10).map((product, index) => (
             <div
               key={product.id}
               className={`reveal-base stagger-${index + 1} ${isVisible ? "reveal-visible" : ""}`}

@@ -1,223 +1,315 @@
 "use client";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useOrderTracking } from "@/hooks/useOrderTracking";
 import {
-  CheckCircle,
+  AlertCircle,
+  CheckCircle2,
+  ChevronRight,
   Clock,
-  Package,
+  Home,
+  MapPin,
+  PackageCheck,
+  Phone,
   Search,
+  ShieldCheck,
+  Sparkles,
   Truck,
+  User,
   XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { OrderTimeline } from "../main/OrderTimeline";
 
 const statusConfig: Record<
   string,
-  { icon: React.ElementType; color: string; label: string }
+  { icon: React.ElementType; color: string; label: string; badgeBg: string }
 > = {
-  pending: { icon: Clock, color: "text-yellow-500", label: "Pending" },
-  processing: { icon: Package, color: "text-blue-500", label: "Processing" },
-  shipped: { icon: Truck, color: "text-purple-500", label: "Shipped" },
-  delivered: { icon: CheckCircle, color: "text-green-500", label: "Delivered" },
-  cancelled: { icon: XCircle, color: "text-red-500", label: "Cancelled" },
+  pending: { icon: Clock, color: "text-amber-500", label: "Pending Verification", badgeBg: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
+  confirmed: { icon: CheckCircle2, color: "text-blue-500", label: "Order Confirmed", badgeBg: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
+  processing: { icon: PackageCheck, color: "text-purple-500", label: "Packaging & Processing", badgeBg: "bg-purple-500/10 text-purple-600 border-purple-500/20" },
+  shipped: { icon: Truck, color: "text-indigo-500", label: "In Transit / Shipped", badgeBg: "bg-indigo-500/10 text-indigo-600 border-indigo-500/20" },
+  delivered: { icon: CheckCircle2, color: "text-emerald-500", label: "Successfully Delivered", badgeBg: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" },
+  cancelled: { icon: XCircle, color: "text-destructive", label: "Order Cancelled", badgeBg: "bg-destructive/10 text-destructive border-destructive/20" },
 };
 
 export default function TrackOrderPage() {
+  const searchParams = useSearchParams();
+  const initialParam = searchParams.get("orderId") || searchParams.get("phone") || "";
+
   const { t, formatCurrency } = useSiteSettings();
-  const [orderNumber, setOrderNumber] = useState("");
-  const [phone, setPhone] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [searchInput, setSearchInput] = useState(initialParam);
+  const [submittedQuery, setSubmittedQuery] = useState(initialParam);
+
+  useEffect(() => {
+    if (initialParam) {
+      setSearchInput(initialParam);
+      setSubmittedQuery(initialParam);
+    }
+  }, [initialParam]);
 
   const {
     data: order,
     isLoading,
     error,
-  } = useOrderTracking(submitted ? orderNumber : "", submitted ? phone : "");
+  } = useOrderTracking(submittedQuery);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    if (searchInput.trim()) {
+      setSubmittedQuery(searchInput.trim());
+    }
   };
 
   const status = order?.status || "pending";
-  const StatusIcon = statusConfig[status]?.icon || Clock;
+  const statusInfo = statusConfig[status] || statusConfig.pending;
+  const StatusIcon = statusInfo.icon;
 
   return (
-    <div className="container-shop section-padding">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2 text-center">
-          Track Your Order
-        </h1>
-        <p className="text-muted-foreground text-center mb-8">
-          Enter your order number and phone to check status
-        </p>
+    <div className="bg-background min-h-screen pb-20">
+      {/* Header Banner */}
+      <div className="border-b border-border/60 bg-muted/20 py-6 mb-8">
+        <div className="container-shop">
+          {/* Breadcrumbs */}
+          <nav className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+            <Link href="/" className="hover:text-foreground flex items-center gap-1 transition-colors">
+              <Home className="h-3.5 w-3.5" />
+              <span>Home</span>
+            </Link>
+            <ChevronRight className="h-3 w-3" />
+            <span className="text-foreground font-medium">Order Tracking</span>
+          </nav>
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-card rounded-xl border border-border p-6 mb-8"
-        >
-          <div className="space-y-4">
+          {/* Title & Badge */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Order Number
-              </label>
-              <input
-                type="text"
-                value={orderNumber}
-                onChange={(e) => {
-                  setOrderNumber(e.target.value);
-                  setSubmitted(false);
-                }}
-                className="input-shop"
-                placeholder="e.g., ORD-12345678"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => {
-                  setPhone(e.target.value);
-                  setSubmitted(false);
-                }}
-                className="input-shop"
-                placeholder="Your phone number"
-                required
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Last 4 digits are enough
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
+                  Track Your Order
+                </h1>
+                <Badge className="bg-accent/10 text-accent border border-accent/20 text-xs px-2.5 py-0.5 rounded-full font-bold">
+                  Live Status Updates
+                </Badge>
+              </div>
+              <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                Simply enter your Phone Number or Order ID to check live order & courier delivery status.
               </p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container-shop max-w-3xl mx-auto space-y-8">
+        {/* Simplified Search Card */}
+        <div className="bg-card border border-border/80 rounded-3xl p-6 md:p-8 shadow-xs">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                Phone Number or Order ID
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="w-full bg-background border border-border/80 rounded-xl pl-12 pr-4 py-3 text-base font-medium text-foreground outline-none focus:border-accent transition-colors"
+                  placeholder="Enter your phone number (e.g. 017XXXXXXXX) or Order ID"
+                  required
+                />
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-1.5">
+                💡 Tip: Just enter your 11-digit mobile phone number to find your latest order immediately.
+              </p>
+            </div>
+
             <Button
               type="submit"
-              className="btn-accent w-full"
-              disabled={isLoading}
+              disabled={isLoading || !searchInput.trim()}
+              className="w-full bg-accent text-accent-foreground hover:opacity-90 font-extrabold h-12 rounded-xl text-sm shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Search className="h-4 w-4 mr-2" />
-              {isLoading ? "Searching..." : "Track Order"}
+              <Search className="h-4 w-4" />
+              <span>{isLoading ? "Searching Live Order..." : "Check Order Status"}</span>
             </Button>
-          </div>
-        </form>
+          </form>
+        </div>
 
-        {submitted && error && (
-          <div className="bg-destructive/10 text-destructive rounded-xl p-4 text-center">
-            {error.message}
+        {/* Error Alert */}
+        {submittedQuery && error && (
+          <div className="bg-destructive/10 border border-destructive/20 text-destructive rounded-2xl p-5 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold text-sm">No Order Found</p>
+              <p className="text-xs opacity-90 mt-0.5">
+                {error.message || "Please check your Phone Number and try again."}
+              </p>
+            </div>
           </div>
         )}
 
+        {/* Order Details Result */}
         {order && (
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
-            {/* Status Banner */}
-            <div className="bg-secondary/50 p-6 text-center">
-              <StatusIcon
-                className={`h-12 w-12 mx-auto mb-3 ${statusConfig[status]?.color}`}
-              />
-              <h2 className="text-xl font-bold">
-                {statusConfig[status]?.label}
-              </h2>
-              <p className="text-muted-foreground">
-                Order #{order.order_number}
-              </p>
-            </div>
-
-            {/* Order Details */}
-            <div className="p-6 space-y-6">
-              {/* Order Timeline */}
-              <div>
-                <h3 className="font-semibold mb-4">Order Progress</h3>
-                <OrderTimeline
-                  currentStatus={status}
-                  courierStatus={order.courier_status}
-                  createdAt={order.created_at}
-                  updatedAt={order.updated_at}
-                  courierCreatedAt={order.courier_created_at}
-                  courierUpdatedAt={order.courier_updated_at}
-                />
+          <div className="bg-card border border-border/80 rounded-3xl overflow-hidden shadow-xs space-y-6">
+            {/* Live Status Header */}
+            <div className="bg-muted/30 border-b border-border/60 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4 text-center md:text-left">
+                <div className="w-14 h-14 rounded-2xl bg-background border border-border/80 flex items-center justify-center shrink-0 shadow-2xs">
+                  <StatusIcon className={`h-8 w-8 ${statusInfo.color}`} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-xl font-extrabold text-foreground">
+                      Order #{order.order_number}
+                    </h2>
+                    <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${statusInfo.badgeBg}`}>
+                      {statusInfo.label}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Placed on {new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  </p>
+                </div>
               </div>
 
-              {/* Courier Info */}
+              {/* Total Amount Tag */}
+              <div className="text-center md:text-right shrink-0 bg-background px-4 py-2 rounded-xl border border-border/80">
+                <span className="text-[11px] text-muted-foreground font-bold uppercase block">Total Amount</span>
+                <span className="text-lg font-black text-accent">{formatCurrency(order.total)}</span>
+              </div>
+            </div>
+
+            {/* Main Content Area */}
+            <div className="p-6 md:p-8 space-y-8">
+              {/* Order Timeline Progress */}
+              <div className="space-y-4">
+                <h3 className="font-extrabold text-sm text-foreground uppercase tracking-wider flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-accent" />
+                  <span>Order Progress Timeline</span>
+                </h3>
+                <div className="bg-background border border-border/80 rounded-2xl p-5">
+                  <OrderTimeline
+                    currentStatus={status}
+                    courierStatus={order.courier_status}
+                    createdAt={order.created_at}
+                    updatedAt={order.updated_at}
+                    courierCreatedAt={order.courier_created_at}
+                    courierUpdatedAt={order.courier_updated_at}
+                  />
+                </div>
+              </div>
+
+              {/* Courier Tracking Section */}
               {order.courier_tracking_id && (
-                <div className="bg-accent/10 rounded-lg p-4">
-                  <h3 className="font-semibold mb-2">Courier Tracking</h3>
-                  <p className="text-sm">
-                    <span className="text-muted-foreground">Provider:</span>{" "}
-                    <span className="font-medium capitalize">
-                      {order.courier_provider || "Courier"}
-                    </span>
-                  </p>
-                  <p className="text-sm">
-                    <span className="text-muted-foreground">Tracking ID:</span>{" "}
-                    <span className="font-mono font-bold">
-                      {order.courier_tracking_id}
-                    </span>
-                  </p>
-                  {order.courier_consignment_id && (
-                    <p className="text-sm">
-                      <span className="text-muted-foreground">
-                        Consignment:
-                      </span>{" "}
-                      <span className="font-mono">
-                        {order.courier_consignment_id}
-                      </span>
-                    </p>
-                  )}
-                  {order.courier_status && (
-                    <p className="text-sm mt-2">
-                      <span className="text-muted-foreground">Status:</span>{" "}
-                      <span className="font-medium text-accent">
-                        {order.courier_status}
-                      </span>
-                    </p>
-                  )}
+                <div className="bg-accent/10 border border-accent/20 rounded-2xl p-5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-xs uppercase tracking-wider text-accent flex items-center gap-2">
+                      <Truck className="h-4 w-4" />
+                      <span>Courier Shipping Info</span>
+                    </h3>
+                    <Badge className="bg-accent text-accent-foreground text-[10px] uppercase">
+                      {order.courier_provider || "Courier Partner"}
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-medium pt-1">
+                    <div>
+                      <span className="text-muted-foreground block">Tracking ID:</span>
+                      <span className="font-mono font-bold text-foreground">{order.courier_tracking_id}</span>
+                    </div>
+
+                    {order.courier_consignment_id && (
+                      <div>
+                        <span className="text-muted-foreground block">Consignment ID:</span>
+                        <span className="font-mono font-bold text-foreground">{order.courier_consignment_id}</span>
+                      </div>
+                    )}
+
+                    {order.courier_status && (
+                      <div>
+                        <span className="text-muted-foreground block">Courier Status:</span>
+                        <span className="font-bold text-accent">{order.courier_status}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
-              {/* Shipping */}
-              <div>
-                <h3 className="font-semibold mb-2">Shipping Address</h3>
-                <p className="text-muted-foreground text-sm">
-                  {order.customer_name}
-                  <br />
-                  {order.shipping_address}
-                  <br />
-                  {order.shipping_city}
-                </p>
+              {/* Delivery Address & Customer Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-background border border-border/80 rounded-2xl p-4 space-y-2">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5 text-accent" />
+                    Customer Details
+                  </h4>
+                  <p className="text-xs font-bold text-foreground">{order.customer_name}</p>
+                  <p className="text-xs text-muted-foreground font-mono">{order.customer_phone}</p>
+                </div>
+
+                <div className="bg-background border border-border/80 rounded-2xl p-4 space-y-2">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5 text-accent" />
+                    Delivery Address
+                  </h4>
+                  <p className="text-xs font-medium text-foreground leading-relaxed">
+                    {order.shipping_address}
+                    {order.shipping_city !== "-" && `, ${order.shipping_city}`}
+                  </p>
+                </div>
               </div>
 
-              {/* Items */}
-              <div>
-                <h3 className="font-semibold mb-2">Order Items</h3>
-                <div className="space-y-2">
+              {/* Order Items List */}
+              <div className="space-y-3">
+                <h3 className="font-extrabold text-sm text-foreground uppercase tracking-wider">
+                  Ordered Items ({order.order_items?.length || 0})
+                </h3>
+
+                <div className="bg-background border border-border/80 rounded-2xl divide-y divide-border/60">
                   {order.order_items?.map((item: any) => (
-                    <div key={item.id} className="flex justify-between text-sm">
-                      <span>
-                        {item.product_name} × {item.quantity}
+                    <div key={item.id} className="p-4 flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 min-w-0">
+                        {item.product_image && (
+                          <div className="w-12 h-12 rounded-xl bg-secondary overflow-hidden shrink-0 relative border border-border/60">
+                            <Image
+                              src={item.product_image}
+                              alt={item.product_name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="font-bold text-xs text-foreground truncate">{item.product_name}</p>
+                          <p className="text-[11px] text-muted-foreground">Qty: {item.quantity} × {formatCurrency(item.price)}</p>
+                        </div>
+                      </div>
+
+                      <span className="font-bold text-xs text-foreground shrink-0">
+                        {formatCurrency(item.price * item.quantity)}
                       </span>
-                      <span>{formatCurrency(item.price * item.quantity)}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Total */}
-              <div className="border-t border-border pt-4">
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span>{formatCurrency(order.subtotal)}</span>
+              {/* Summary Breakdown */}
+              <div className="bg-background border border-border/80 rounded-2xl p-5 space-y-2.5 text-xs font-medium">
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Subtotal</span>
+                  <span className="font-bold text-foreground">{formatCurrency(order.subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-muted-foreground">Shipping</span>
-                  <span>{formatCurrency(order.shipping_cost)}</span>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Shipping Fee</span>
+                  <span className="font-bold text-foreground">{formatCurrency(order.shipping_cost)}</span>
                 </div>
-                <div className="flex justify-between font-bold">
-                  <span>Total</span>
-                  <span>{formatCurrency(order.total)}</span>
+                <hr className="border-border/60 my-2" />
+                <div className="flex justify-between text-sm font-bold">
+                  <span className="text-foreground">Total Amount</span>
+                  <span className="text-accent font-extrabold">{formatCurrency(order.total)}</span>
                 </div>
               </div>
             </div>
