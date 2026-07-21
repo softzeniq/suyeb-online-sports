@@ -46,9 +46,9 @@ function NewArrivalsSection({ section }: { section: HomepageSection }) {
           </div>
           <Link
             href="/shop?filter=new"
-            className="hidden sm:flex items-center gap-2 text-sm font-medium text-accent hover:underline"
+            className="flex items-center gap-1.5 text-xs md:text-sm font-semibold text-accent hover:underline"
           >
-            View All <ArrowRight className="h-4 w-4" />
+            View All <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
         <div className="product-grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-3">
@@ -60,6 +60,14 @@ function NewArrivalsSection({ section }: { section: HomepageSection }) {
               <ProductCard product={product} />
             </div>
           ))}
+        </div>
+        <div className="flex sm:hidden justify-center mt-6">
+          <Link
+            href="/shop?filter=new"
+            className="w-full text-center py-2.5 px-5 border border-accent text-accent font-semibold rounded-xl text-sm transition-all duration-300 hover:bg-accent hover:text-white"
+          >
+            View All
+          </Link>
         </div>
       </div>
     </section>

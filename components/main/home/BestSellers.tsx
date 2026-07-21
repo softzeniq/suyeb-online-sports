@@ -50,9 +50,9 @@ export function BestSellers() {
           </div>
           <Link
             href="/shop?filter=bestsellers"
-            className="hidden sm:flex items-center gap-2 text-sm font-medium text-accent hover:underline"
+            className="flex items-center gap-1.5 text-xs md:text-sm font-semibold text-accent hover:underline"
           >
-            {t("common.viewAll")} <ArrowRight className="h-4 w-4" />
+            {t("common.viewAll") || "View All"} <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 
@@ -65,6 +65,15 @@ export function BestSellers() {
               <ProductCard product={product} />
             </div>
           ))}
+        </div>
+
+        <div className="flex sm:hidden justify-center mt-6">
+          <Link
+            href="/shop?filter=bestsellers"
+            className="w-full text-center py-2.5 px-5 border border-accent text-accent font-semibold rounded-xl text-sm transition-all duration-300 hover:bg-accent hover:text-white"
+          >
+            {t("common.viewAll") || "View All"}
+          </Link>
         </div>
       </div>
     </section>
