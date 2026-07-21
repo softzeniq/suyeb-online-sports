@@ -168,7 +168,7 @@ export default function ShopPage() {
   };
 
   // Sidebar Filter Component
-  const FilterContent = ({ onItemClick }: { onItemClick?: () => void }) => (
+  const renderFilterContent = (onItemClick?: () => void) => (
     <div className="space-y-6">
       {/* Categories */}
       <div className="space-y-3">
@@ -445,7 +445,7 @@ export default function ShopPage() {
           {/* Sidebar - Desktop Fixed Sticky with Independent Category Scroll */}
           <aside className="hidden lg:block w-64 shrink-0 sticky top-24 self-start z-30">
             <div className="bg-card border border-border/80 rounded-2xl p-5 shadow-xs">
-              <FilterContent />
+              {renderFilterContent()}
             </div>
           </aside>
 
@@ -496,7 +496,7 @@ export default function ShopPage() {
                       </SheetTitle>
                     </SheetHeader>
                     <div className="mt-4 pb-8">
-                      <FilterContent onItemClick={() => setIsMobileFilterOpen(false)} />
+                      {renderFilterContent(() => setIsMobileFilterOpen(false))}
                     </div>
                   </SheetContent>
                 </Sheet>
