@@ -79,8 +79,7 @@ export default function OrderSuccessPage() {
 
           {/* Steps Timeline Box */}
           <div className="bg-secondary/40 border border-border/60 rounded-2xl p-6 text-left space-y-4">
-            <h3 className="font-extrabold text-sm text-foreground flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-accent" />
+            <h3 className="font-extrabold text-sm text-foreground">
               <span>What Happens Next?</span>
             </h3>
 

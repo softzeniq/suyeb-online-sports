@@ -89,9 +89,9 @@ export function Footer() {
     <footer className="bg-foreground text-background border-t border-border/20 pt-12 pb-8">
       <div className="container-shop">
         {/* Main Footer Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 pb-12">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 pb-12">
           {/* Brand Column */}
-          <div className="space-y-4">
+          <div className="col-span-2 md:col-span-1 lg:col-span-1 space-y-4">
             <Link href="/" className="inline-block">
               {storeSettings?.store_logo ? (
                 <Image
@@ -100,6 +100,7 @@ export function Footer() {
                   height={48}
                   width={180}
                   className="h-12 w-auto object-contain brightness-0 invert"
+                  priority
                 />
               ) : (
                 <span className="text-2xl font-black tracking-tight text-background">
@@ -143,7 +144,7 @@ export function Footer() {
           </div>
 
           {/* Column 2: Quick Links */}
-          <div className="space-y-4">
+          <div className="col-span-1 md:col-span-1 lg:col-span-1 space-y-4">
             <h3 className="font-extrabold text-sm uppercase tracking-wider text-background flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-accent inline-block" />
               <span>Explore Shop</span>
@@ -164,7 +165,7 @@ export function Footer() {
           </div>
 
           {/* Column 3: Customer Care */}
-          <div className="space-y-4">
+          <div className="col-span-1 md:col-span-1 lg:col-span-1 space-y-4">
             <h3 className="font-extrabold text-sm uppercase tracking-wider text-background flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-accent inline-block" />
               <span>Customer Care</span>
@@ -185,7 +186,7 @@ export function Footer() {
           </div>
 
           {/* Column 4: Contact & Address */}
-          <div className="space-y-4">
+          <div className="col-span-2 md:col-span-1 lg:col-span-1 space-y-4">
             <h3 className="font-extrabold text-sm uppercase tracking-wider text-background flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-accent inline-block" />
               <span>Contact Us</span>

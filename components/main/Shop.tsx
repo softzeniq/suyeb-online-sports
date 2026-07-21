@@ -69,6 +69,7 @@ export default function ShopPage() {
   const [maxPrice, setMaxPrice] = useState<string>("");
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<string>("newest");
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState<boolean>(false);
 
   // Layout & Pagination States
   const [gridCols, setGridCols] = useState<"2" | "3" | "4" | "list">("3");
@@ -167,7 +168,7 @@ export default function ShopPage() {
   };
 
   // Sidebar Filter Component
-  const FilterContent = () => (
+  const FilterContent = ({ onItemClick }: { onItemClick?: () => void }) => (
     <div className="space-y-6">
       {/* Categories */}
       <div className="space-y-3">
@@ -180,7 +181,10 @@ export default function ShopPage() {
         {/* Category List: Adjust max-h-[320px] below to change number of categories visible upfront before scrolling */}
         <div className="space-y-1 max-h-[320px] overflow-y-auto pr-1 text-xs font-medium scrollbar-thin">
           <button
-            onClick={() => setSelectedCategory("all")}
+            onClick={() => {
+              setSelectedCategory("all");
+              onItemClick?.();
+            }}
             className={`flex items-center justify-between w-full px-3.5 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCategory === "all"
               ? "bg-accent text-accent-foreground shadow-sm font-semibold"
               : "text-foreground/80 hover:bg-secondary hover:text-foreground"
@@ -193,7 +197,10 @@ export default function ShopPage() {
             return (
               <button
                 key={cat.id}
-                onClick={() => setSelectedCategory(cat.slug)}
+                onClick={() => {
+                  setSelectedCategory(cat.slug);
+                  onItemClick?.();
+                }}
                 className={`flex items-center justify-between w-full px-3.5 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCategory === cat.slug
                   ? "bg-accent text-accent-foreground shadow-sm font-semibold"
                   : "text-foreground/80 hover:bg-secondary hover:text-foreground"
@@ -313,7 +320,10 @@ export default function ShopPage() {
         <Button
           variant="outline"
           className="w-full rounded-xl gap-2 text-xs border-dashed text-destructive hover:text-destructive hover:bg-destructive/10"
-          onClick={handleClearAllFilters}
+          onClick={() => {
+            handleClearAllFilters();
+            onItemClick?.();
+          }}
         >
           <RotateCcw className="h-3.5 w-3.5" />
           Clear All Filters ({activeFiltersCount})
@@ -466,7 +476,7 @@ export default function ShopPage() {
               {/* Controls Group */}
               <div className="flex items-center gap-2 justify-between md:justify-end">
                 {/* Mobile Filter Button */}
-                <Sheet>
+                <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
                   <SheetTrigger asChild>
                     <Button variant="outline" size="sm" className="lg:hidden gap-1.5 rounded-xl text-xs h-10">
                       <SlidersHorizontal className="h-3.5 w-3.5 text-accent" />
@@ -478,15 +488,15 @@ export default function ShopPage() {
                       )}
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="left" className="w-80 overflow-y-auto">
-                    <SheetHeader className="pb-4 border-b border-border">
+                  <SheetContent side="left" className="w-80 overflow-y-auto p-6">
+                    <SheetHeader className="p-0 pb-4 border-b border-border">
                       <SheetTitle className="flex items-center gap-2 text-base">
                         <Filter className="h-4 w-4 text-accent" />
                         Filter Products
                       </SheetTitle>
                     </SheetHeader>
                     <div className="mt-4 pb-8">
-                      <FilterContent />
+                      <FilterContent onItemClick={() => setIsMobileFilterOpen(false)} />
                     </div>
                   </SheetContent>
                 </Sheet>

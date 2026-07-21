@@ -369,9 +369,8 @@ export default function ProductDetailsPage() {
               {product.category && (
                 <Link
                   href={`/shop?category=${product.category.slug}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-accent/10 text-accent uppercase tracking-wider hover:bg-accent/20 transition-colors"
+                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-accent/10 text-accent uppercase tracking-wider hover:bg-accent/20 transition-colors"
                 >
-                  <Sparkles className="h-3 w-3" />
                   <span>{product.category.name}</span>
                 </Link>
               )}

@@ -187,8 +187,7 @@ export default function TrackOrderPage() {
             <div className="p-6 md:p-8 space-y-8">
               {/* Order Timeline Progress */}
               <div className="space-y-4">
-                <h3 className="font-extrabold text-sm text-foreground uppercase tracking-wider flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-accent" />
+                <h3 className="font-extrabold text-sm text-foreground uppercase tracking-wider">
                   <span>Order Progress Timeline</span>
                 </h3>
                 <div className="bg-background border border-border/80 rounded-2xl p-5">
