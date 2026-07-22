@@ -638,6 +638,7 @@ export type Database = {
           transaction_id: string | null;
           updated_at: string;
           user_id: string | null;
+          hidden_by_customer: boolean;
         };
         Insert: {
           courier_consignment_id?: string | null;
@@ -674,6 +675,7 @@ export type Database = {
           transaction_id?: string | null;
           updated_at?: string;
           user_id?: string | null;
+          hidden_by_customer?: boolean;
         };
         Update: {
           courier_consignment_id?: string | null;
@@ -710,6 +712,7 @@ export type Database = {
           transaction_id?: string | null;
           updated_at?: string;
           user_id?: string | null;
+          hidden_by_customer?: boolean;
         };
         Relationships: [
           {

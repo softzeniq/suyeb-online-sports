@@ -5,11 +5,24 @@ import { DefaultHomepage } from "./HomeTemplate";
 export default async function HomeTemplate() {
   const supabase = await createClient();
 
-  const { data: sections } = await supabase
+  // 1. Fetch the active homepage template ID
+  const { data: activeTemplate } = await supabase
+    .from("homepage_templates")
+    .select("id")
+    .eq("is_active", true)
+    .maybeSingle();
+
+  // 2. Fetch enabled sections belonging to the active template
+  let query = supabase
     .from("homepage_sections")
     .select("*")
-    .eq("enabled", true)
-    .order("sort_order");
+    .eq("enabled", true);
+
+  if (activeTemplate?.id) {
+    query = query.eq("template_id", activeTemplate.id);
+  }
+
+  const { data: sections } = await query.order("sort_order");
 
   return (
     <DefaultHomepage

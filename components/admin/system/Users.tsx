@@ -180,7 +180,7 @@ export default function AdminUsers() {
         // 2. Insert new role directly
         const { data, error: insertError } = await supabase
           .from("user_roles")
-          .insert({ user_id, role })
+          .insert({ user_id, role: role as "admin" | "customer" | "manager" | "order_handler" })
           .select()
           .single();
 
