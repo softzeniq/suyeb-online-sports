@@ -389,7 +389,37 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
   const formatCurrency = useCallback(
     (amount: number): string => {
       try {
-        return new Intl.NumberFormat(activeSettings.currency_locale, {
+        // Special logic for BDT (Bangladesh Taka) based on active language
+        if (activeSettings.currency_code === "BDT") {
+          if (activeLanguage === "bn") {
+            // Show Bengali Taka symbol (৳) with Bengali numerals
+            return new Intl.NumberFormat("bn-BD", {
+              style: "currency",
+              currency: "BDT",
+              currencyDisplay: "symbol",
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 2,
+            }).format(amount);
+          } else {
+            // English language: show BDT code (e.g. BDT 100) using English numerals
+            const formattedAmount = new Intl.NumberFormat("en-US", {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 2,
+            }).format(amount);
+            return `BDT ${formattedAmount}`;
+          }
+        }
+
+        // Standard formatting for other currencies (Oman, Kuwait, UAE, Saudi Arabia, etc.)
+        let formatLocale = activeSettings.currency_locale;
+        if (activeLanguage === "en") {
+          // Force English numbers (e.g. 1,000 instead of Arabic numerals if locale is ar-SA)
+          formatLocale = "en-US";
+        } else if (activeLanguage === "hi") {
+          formatLocale = "hi-IN";
+        }
+
+        return new Intl.NumberFormat(formatLocale, {
           style: "currency",
           currency: activeSettings.currency_code,
           minimumFractionDigits: 0,
@@ -404,6 +434,7 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       activeSettings.currency_locale,
       activeSettings.currency_code,
       activeSettings.currency_symbol,
+      activeLanguage,
     ],
   );
 

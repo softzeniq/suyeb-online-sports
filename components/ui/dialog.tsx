@@ -55,6 +55,14 @@ function DialogContent({
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
 }) {
+  let widthClassOverride = "";
+  if (className) {
+    const match = className.match(/max-w-(xs|sm|md|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|full)/);
+    if (match && !className.includes("sm:max-w-")) {
+      widthClassOverride = `sm:${match[0]}`;
+    }
+  }
+
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -62,6 +70,7 @@ function DialogContent({
         data-slot="dialog-content"
         className={cn(
           "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          widthClassOverride,
           className
         )}
         {...props}

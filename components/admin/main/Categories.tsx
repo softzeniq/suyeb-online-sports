@@ -31,7 +31,8 @@ import {
   useDeleteCategory,
   useUpdateCategory,
 } from "@/hooks/useShopData";
-import { Edit, MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import { useStoreSettings, useUpdateStoreSettings } from "@/hooks/useStoreSettings";
+import { Edit, MoreHorizontal, Plus, Trash2, Eye, EyeOff } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const generateSlug = (name: string) => {
@@ -46,6 +47,35 @@ export default function AdminCategories() {
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
   const deleteCategory = useDeleteCategory();
+
+  const { data: storeSettings } = useStoreSettings();
+  const updateStoreSettings = useUpdateStoreSettings();
+
+  const isShownInHeader = (slug: string) => {
+    if (!storeSettings?.header_categories) return false;
+    return storeSettings.header_categories
+      .split(",")
+      .map((s) => s.trim())
+      .includes(slug);
+  };
+
+  const handleToggleHeaderShow = async (slug: string) => {
+    if (!storeSettings) return;
+    const currentList = storeSettings.header_categories
+      ? storeSettings.header_categories.split(",").map((s) => s.trim()).filter(Boolean)
+      : [];
+    
+    let newList;
+    if (currentList.includes(slug)) {
+      newList = currentList.filter((s) => s !== slug);
+    } else {
+      newList = [...currentList, slug];
+    }
+
+    await updateStoreSettings.mutateAsync({
+      header_categories: newList.join(","),
+    });
+  };
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -220,6 +250,26 @@ export default function AdminCategories() {
                   <p className="text-sm text-muted-foreground">
                     /{category.slug}
                   </p>
+                  <button
+                    onClick={() => handleToggleHeaderShow(category.slug)}
+                    className={`mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 transition-all cursor-pointer ${
+                      isShownInHeader(category.slug)
+                        ? "bg-accent/15 border-accent/30 text-accent"
+                        : "bg-secondary/40 border-border text-muted-foreground hover:bg-secondary/70"
+                    }`}
+                  >
+                    {isShownInHeader(category.slug) ? (
+                      <>
+                        <Eye className="h-3 w-3" />
+                        <span>In Header</span>
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="h-3 w-3" />
+                        <span>Hidden</span>
+                      </>
+                    )}
+                  </button>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

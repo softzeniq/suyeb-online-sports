@@ -151,7 +151,7 @@ export default function AdminSlider() {
               Add Slide
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingSlide ? "Edit Slide" : "Add New Slide"}

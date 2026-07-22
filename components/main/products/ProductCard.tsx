@@ -112,7 +112,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Content Details */}
         <div className="pt-2 pb-0.5 flex flex-col">
           <Link href={`/products/${product.slug}`} className="block group-hover:text-accent transition-colors">
-            <h3 className="font-semibold text-xs line-clamp-2 leading-5 overflow-hidden text-ellipsis text-foreground/90 transition-colors group-hover:text-accent">
+            <h3 className="font-semibold text-sm line-clamp-2 leading-5 overflow-hidden text-ellipsis text-foreground/90 transition-colors group-hover:text-accent">
               {product.name}
             </h3>
           </Link>
@@ -123,11 +123,10 @@ export function ProductCard({ product }: ProductCardProps) {
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
-                  className={`h-3.5 w-3.5 ${
-                    star <= Math.round(ratingValue)
-                      ? "fill-amber-400 text-amber-400"
-                      : "text-border fill-muted/20"
-                  }`}
+                  className={`h-3.5 w-3.5 ${star <= Math.round(ratingValue)
+                    ? "fill-amber-400 text-amber-400"
+                    : "text-border fill-muted/20"
+                    }`}
                 />
               ))}
             </div>
@@ -137,7 +136,7 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* Price Box */}
-          <div className="flex items-center gap-1.5 text-sm font-bold text-accent mt-0.5 leading-none">
+          <div className="flex items-center gap-1.5 text-md font-bold text-accent mt-0.5 leading-none">
             {hasDiscount ? (
               <>
                 <span className="text-sm font-bold text-accent">

@@ -2,6 +2,8 @@
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useOrders } from "@/hooks/useOrders";
 import { useCategories, useProducts } from "@/hooks/useShopData";
+import { useAuth } from "@/hooks/useAuth";
+import CustomerDashboard from "./CustomerDashboard";
 import { format } from "date-fns";
 import {
   Banknote,
@@ -14,10 +16,15 @@ import {
 import Link from "next/link";
 
 export default function AdminDashboard() {
+  const { isAdmin, isStaff } = useAuth();
   const { data: products = [] } = useProducts();
   const { data: categories = [] } = useCategories();
   const { data: orders = [], isLoading } = useOrders();
   const { formatCurrency } = useSiteSettings();
+
+  if (!isAdmin && !isStaff) {
+    return <CustomerDashboard />;
+  }
 
   const pendingOrders = orders.filter((o) => o.status === "pending").length;
   const revenue = orders

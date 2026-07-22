@@ -72,9 +72,9 @@ export default function ShopPage() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState<boolean>(false);
 
   // Layout & Pagination States
-  const [gridCols, setGridCols] = useState<"2" | "3" | "4" | "list">("3");
+  const [gridCols, setGridCols] = useState<"2" | "3" | "4" | "list">("4");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 20;
+  const itemsPerPage = 32;
 
   // Sync search query, category, and URL filter parameters
   useEffect(() => {
@@ -369,7 +369,7 @@ export default function ShopPage() {
             </div>
 
             {/* Feature Trust Badges */}
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <div className="hidden sm:flex flex-wrap items-center gap-3 shrink-0">
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-background px-3 py-1.5 rounded-full border border-border/80 shadow-xs">
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
                 <span>100% Authentic</span>
@@ -504,6 +504,16 @@ export default function ShopPage() {
                 {/* Grid Layout Density Switcher (Desktop/Tablet) */}
                 <div className="hidden sm:flex items-center gap-1 bg-secondary/60 p-1 rounded-xl border border-border/60">
                   <button
+                    onClick={() => setGridCols("list")}
+                    title="List View"
+                    className={`p-1.5 rounded-lg transition-colors ${gridCols === "list"
+                      ? "bg-background text-accent shadow-xs font-bold"
+                      : "text-muted-foreground hover:text-foreground"
+                      }`}
+                  >
+                    <List className="h-4 w-4" />
+                  </button>
+                  <button
                     onClick={() => setGridCols("2")}
                     title="2 Columns Grid"
                     className={`p-1.5 rounded-lg transition-colors ${gridCols === "2"
@@ -515,18 +525,8 @@ export default function ShopPage() {
                   </button>
                   <button
                     onClick={() => setGridCols("3")}
-                    title="3 Columns Grid"
-                    className={`p-1.5 rounded-lg transition-colors ${gridCols === "3"
-                      ? "bg-background text-accent shadow-xs font-bold"
-                      : "text-muted-foreground hover:text-foreground"
-                      }`}
-                  >
-                    <Grid3X3 className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => setGridCols("4")}
                     title="4 Columns Grid"
-                    className={`p-1.5 rounded-lg transition-colors ${gridCols === "4"
+                    className={`p-1.5 rounded-lg transition-colors ${gridCols === "3"
                       ? "bg-background text-accent shadow-xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
                       }`}
@@ -534,14 +534,14 @@ export default function ShopPage() {
                     <LayoutGrid className="h-4 w-4" />
                   </button>
                   <button
-                    onClick={() => setGridCols("list")}
-                    title="List View"
-                    className={`p-1.5 rounded-lg transition-colors ${gridCols === "list"
+                    onClick={() => setGridCols("4")}
+                    title="3 Columns Grid"
+                    className={`p-1.5 rounded-lg transition-colors ${gridCols === "4"
                       ? "bg-background text-accent shadow-xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
                       }`}
                   >
-                    <List className="h-4 w-4" />
+                    <Grid3X3 className="h-4 w-4" />
                   </button>
                 </div>
 
@@ -630,26 +630,11 @@ export default function ShopPage() {
               </p>
             </div>
 
-            {/* Product Grid / Skeleton / Empty State */}
+            {/* Product Grid / Loader / Empty State */}
             {isLoading ? (
-              <div
-                className={
-                  gridCols === "list"
-                    ? "space-y-4"
-                    : `grid gap-4 ${gridCols === "2"
-                      ? "grid-cols-2"
-                      : gridCols === "4"
-                        ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
-                        : "grid-cols-2 sm:grid-cols-3"
-                    }`
-                }
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                  <div
-                    key={i}
-                    className="aspect-square rounded-2xl bg-muted/60 animate-pulse border border-border/40"
-                  />
-                ))}
+              <div className="min-h-[400px] flex flex-col items-center justify-center gap-3 bg-card/45 backdrop-blur-md border border-border/80 rounded-3xl p-12 shadow-xs">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-accent" />
+                <p className="text-xs text-muted-foreground font-bold tracking-wider uppercase">Loading Products...</p>
               </div>
             ) : products.length > 0 ? (
               <div

@@ -18,6 +18,7 @@ export default function AdminPages() {
     about_hero_title: "",
     about_hero_image: "",
     about_story_title: "",
+    about_story_image: "",
     about_story_p1: "",
     about_story_p2: "",
     about_value_1_title: "",
@@ -60,6 +61,7 @@ export default function AdminPages() {
         about_hero_title: storeSettings.about_hero_title || "",
         about_hero_image: storeSettings.about_hero_image || "",
         about_story_title: storeSettings.about_story_title || "",
+        about_story_image: storeSettings.about_story_image || "",
         about_story_p1: storeSettings.about_story_p1 || "",
         about_story_p2: storeSettings.about_story_p2 || "",
         about_value_1_title: storeSettings.about_value_1_title || "",
@@ -214,7 +216,7 @@ export default function AdminPages() {
             <div className="bg-card rounded-xl border border-border p-6">
               <h2 className="text-lg font-semibold mb-4">Our Story</h2>
               <div className="space-y-4">
-                <div>
+                 <div>
                   <label className="block text-sm font-medium mb-2">
                     Section Title
                   </label>
@@ -229,6 +231,18 @@ export default function AdminPages() {
                     }
                     className="input-shop"
                     placeholder="Our Story"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Story Image
+                  </label>
+                  <ImageUpload
+                    value={aboutData.about_story_image}
+                    onChange={(url) =>
+                      setAboutData({ ...aboutData, about_story_image: url })
+                    }
+                    folder="pages"
                   />
                 </div>
                 <div>

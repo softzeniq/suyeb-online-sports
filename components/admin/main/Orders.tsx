@@ -18,6 +18,7 @@ import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import { useOrders, useUpdateOrderStatus } from "@/hooks/useOrders";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { createClient } from "@/utils/supabase/client";
+import { useMutation } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
   Eye,
@@ -26,11 +27,22 @@ import {
   Printer,
   RefreshCw,
   Search,
+  Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { PrintModal } from "../PrintModel";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const statusOptions = [
   "pending",
@@ -44,12 +56,37 @@ const statusOptions = [
 export default function AdminOrders() {
   const { data: orders = [], isLoading, error, refetch } = useOrders();
   const { data: storeSettings } = useStoreSettings();
+
+  const deleteOrder = useMutation({
+    mutationFn: async (orderId: string) => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("orders")
+        .delete()
+        .eq("id", orderId)
+        .select();
+
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        throw new Error("Permission denied. Please verify that you have executed the RLS DELETE policy in your Supabase SQL Editor.");
+      }
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("Order deleted successfully from database");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error("Failed to delete order: " + error.message);
+    },
+  });
   const updateStatus = useUpdateOrderStatus();
   const { t, formatCurrency, settings } = useSiteSettings();
   const router = useRouter();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [deleteOrderData, setDeleteOrderData] = useState<{ id: string; order_number: string } | null>(null);
   const [printModal, setPrintModal] = useState<{
     open: boolean;
     type: "invoice" | "courier-slip" | "courier-label";
@@ -337,6 +374,16 @@ export default function AdminOrders() {
                               <Printer className="h-4 w-4 mr-2" />
                               Print Courier Slip
                             </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setDeleteOrderData({ id: order.id, order_number: order.order_number });
+                              }}
+                              className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete Order
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </td>
@@ -377,6 +424,32 @@ export default function AdminOrders() {
         }
         formatCurrency={formatCurrency}
       />
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteOrderData} onOpenChange={() => setDeleteOrderData(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Order</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete order {deleteOrderData?.order_number}? This action cannot be undone and will permanently delete it from the database.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deleteOrderData) {
+                  deleteOrder.mutate(deleteOrderData.id);
+                  setDeleteOrderData(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

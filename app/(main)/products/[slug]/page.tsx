@@ -76,6 +76,8 @@ export default function ProductDetailsPage() {
         value: product.sale_price || product.price,
         currency: settings.currency_code,
       });
+      // Set browser tab title dynamically
+      document.title = `${product.name} | Suyeb Online Sports`;
     }
   }, [product, settings.currency_code]);
 

@@ -47,6 +47,7 @@ const ROLE_LABELS: Record<string, string> = {
   admin: "Admin",
   manager: "Manager",
   order_handler: "Order Handler",
+  customer: "Customer",
 };
 
 const ROLE_ICONS: Record<string, typeof Shield> = {
@@ -70,21 +71,53 @@ export default function AdminUsers() {
   const supabase = createClient();
 
   const fetchUsers = async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/manage-users?action=list`,
-      {
-        headers: {
-          Authorization: `Bearer ${session?.access_token}`,
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    // 1. Fetch profiles
+    const { data: profiles, error: profilesError } = await supabase
+      .from("profiles")
+      .select("user_id, email, full_name, is_active, created_at")
+      .order("created_at", { ascending: false });
+
+    if (profilesError) {
+      console.error("Error fetching profiles directly, falling back to edge function:", profilesError);
+      // Fallback to edge function in case direct DB queries fail
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/manage-users?action=list`,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.access_token}`,
+            apikey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+          },
         },
-      },
-    );
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
-    return (data.users || []) as StaffUser[];
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      return (data.users || []) as StaffUser[];
+    }
+
+    // 2. Fetch roles
+    const { data: roles, error: rolesError } = await supabase
+      .from("user_roles")
+      .select("user_id, role");
+
+    if (rolesError) throw rolesError;
+
+    const rolesMap = new Map(roles.map((r: any) => [r.user_id, r.role]));
+
+    // 3. Map together
+    const users = profiles.map((p: any) => ({
+      id: p.user_id,
+      user_id: p.user_id,
+      email: p.email,
+      full_name: p.full_name,
+      is_active: p.is_active !== false,
+      role: rolesMap.get(p.user_id) || "customer",
+      created_at: p.created_at,
+    }));
+
+    return users as StaffUser[];
   };
 
   const { data: usersList = [], isLoading: isLoadingUsers } = useQuery({
@@ -135,24 +168,46 @@ export default function AdminUsers() {
       user_id: string;
       role: string;
     }) => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/manage-users?action=update-role`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${session?.access_token}`,
-            apikey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-            "Content-Type": "application/json",
+      try {
+        // 1. Delete existing roles for this user directly
+        const { error: deleteError } = await supabase
+          .from("user_roles")
+          .delete()
+          .eq("user_id", user_id);
+
+        if (deleteError) throw deleteError;
+
+        // 2. Insert new role directly
+        const { data, error: insertError } = await supabase
+          .from("user_roles")
+          .insert({ user_id, role })
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+        return data;
+      } catch (dbError: any) {
+        console.warn("DB role update failed, falling back to edge function:", dbError);
+        // Fallback to edge function
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/manage-users?action=update-role`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${session?.access_token}`,
+              apikey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ user_id, role }),
           },
-          body: JSON.stringify({ user_id, role }),
-        },
-      );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      return data;
+        );
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        return data;
+      }
     },
     onSuccess: () => {
       toast.success("Role updated");
@@ -358,6 +413,7 @@ export default function AdminUsers() {
             <SelectItem value="admin">Admin</SelectItem>
             <SelectItem value="manager">Manager</SelectItem>
             <SelectItem value="order_handler">Order Handler</SelectItem>
+            <SelectItem value="customer">Customer</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -432,6 +488,7 @@ export default function AdminUsers() {
                             <SelectItem value="order_handler">
                               Order Handler
                             </SelectItem>
+                            <SelectItem value="customer">Customer</SelectItem>
                           </SelectContent>
                         </Select>
                       </td>

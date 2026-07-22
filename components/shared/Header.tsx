@@ -39,9 +39,9 @@ export function Header() {
   const { totalItems } = useCart();
   const { wishlistCount } = useWishlist();
   const { t } = useSiteSettings();
-  const { data: storeSettings } = useStoreSettings();
+  const { data: storeSettings, isLoading: isSettingsLoading } = useStoreSettings();
   const { data: categories = [] } = useCategories();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin, isStaff } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -57,25 +57,46 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const storeName = storeSettings?.store_name || "STORE";
+  const storeName = storeSettings?.store_name || "LO";
   const storeLogo = storeSettings?.store_logo || "";
   const whatsappNumber = storeSettings?.whatsapp_number || "";
 
+  const headerCategoriesString = storeSettings?.header_categories || "";
+  const headerCategoriesSlugs = headerCategoriesString
+    ? headerCategoriesString.split(",").map((s: string) => s.trim()).filter(Boolean)
+    : [];
+
   const activeCategories = categories
     .filter((cat: any) => cat.is_active !== false)
+    .filter((cat: any) => {
+      // If the dashboard has configured categories, only show those.
+      // Otherwise, fallback to showing all active categories.
+      if (headerCategoriesSlugs.length > 0) {
+        return headerCategoriesSlugs.includes(cat.slug);
+      }
+      return true;
+    })
+    .sort((a: any, b: any) => {
+      if (headerCategoriesSlugs.length > 0) {
+        const indexA = headerCategoriesSlugs.indexOf(a.slug);
+        const indexB = headerCategoriesSlugs.indexOf(b.slug);
+        return indexA - indexB;
+      }
+      return 0;
+    })
     .map((cat: any) => ({
       id: cat.id,
       name: cat.name,
       slug: cat.slug,
       image: cat.image,
       href: `/shop?category=${cat.slug}`,
-    }));
+    }))
+    .slice(0, 8);
 
   const navigation = [
     { name: "HOME", href: "/" },
     { name: "Shop", href: "/shop" },
-    { name: "About Us", href: "/about" },
-    ...activeCategories.slice(0, 6),
+    ...activeCategories,
     { name: "Track Order", href: "/track-order" },
   ];
 
@@ -99,9 +120,8 @@ export function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 bg-background/95 backdrop-blur-md border-b border-border/20 ${
-        isScrolled ? "shadow-md" : ""
-      }`}
+      className={`sticky top-0 z-50 w-full transition-all duration-300 bg-background/95 backdrop-blur-md border-b border-border/20 ${isScrolled ? "shadow-md" : ""
+        }`}
     >
       {/* Main Header Container */}
       <div className={`w-full transition-all duration-300 ${isScrolled ? "py-2" : "py-2.5 md:py-3"}`}>
@@ -126,7 +146,9 @@ export function Header() {
                     {/* Drawer Header */}
                     <div className="p-5 border-b border-border/60 bg-secondary/30 flex items-center justify-between">
                       <Link href="/" className="flex items-center gap-2">
-                        {storeLogo ? (
+                        {isSettingsLoading ? (
+                          <div className="w-28 h-8 bg-muted/65 animate-pulse rounded-xl" />
+                        ) : storeLogo ? (
                           <Image src={storeLogo} alt={storeName} height={36} width={130} className="h-8 w-auto object-contain" />
                         ) : (
                           <span className="text-xl font-black tracking-tight text-foreground">{storeName}</span>
@@ -205,9 +227,8 @@ export function Header() {
                               <SheetClose key={cat.id} asChild>
                                 <Link
                                   href={cat.href}
-                                  className={`flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all ${
-                                    pathname.includes(cat.slug) ? "bg-accent text-accent-foreground" : "text-foreground/90 hover:bg-secondary"
-                                  }`}
+                                  className={`flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all ${pathname.includes(cat.slug) ? "bg-accent text-accent-foreground" : "text-foreground/90 hover:bg-secondary"
+                                    }`}
                                 >
                                   <span>{cat.name}</span>
                                   <ChevronRight className="h-3.5 w-3.5 opacity-60" />
@@ -238,21 +259,37 @@ export function Header() {
                     {/* Drawer Footer Account CTA */}
                     <div className="p-4 border-t border-border/60 bg-secondary/20">
                       {user ? (
-                        <div className="flex items-center justify-between">
-                          <Link href="/admin" className="flex items-center gap-2 text-xs font-bold text-foreground hover:text-accent">
-                            <User className="h-4 w-4" />
-                            <span>Admin Panel</span>
-                          </Link>
-                          <Button variant="ghost" size="sm" onClick={() => signOut()} className="h-8 text-xs text-destructive hover:bg-destructive/10 gap-1">
+                        <div className="flex items-center justify-between w-full">
+                          {isAdmin || isStaff ? (
+                            <SheetClose asChild>
+                              <Link href="/admin" className="flex items-center gap-2 text-xs font-bold text-foreground hover:text-accent">
+                                <User className="h-4 w-4" />
+                                <span>Admin Panel</span>
+                              </Link>
+                            </SheetClose>
+                          ) : (
+                            <div className="flex flex-col gap-1 text-left">
+                              <SheetClose asChild>
+                                <Link href="/admin" className="flex items-center gap-2 text-xs font-bold text-foreground hover:text-accent">
+                                  <User className="h-4 w-4 text-accent shrink-0" />
+                                  <span>My Dashboard</span>
+                                </Link>
+                              </SheetClose>
+                              <span className="text-[10px] text-muted-foreground ml-6 truncate max-w-[120px]">{user.email}</span>
+                            </div>
+                          )}
+                          <Button variant="ghost" size="sm" onClick={() => signOut()} className="h-8 text-xs text-destructive hover:bg-destructive/10 gap-1 cursor-pointer ml-auto">
                             <LogOut className="h-3.5 w-3.5" />
                             Logout
                           </Button>
                         </div>
                       ) : (
-                        <Link href="/admin/login" className="flex items-center justify-center gap-2 w-full py-2.5 bg-accent text-accent-foreground rounded-xl font-extrabold text-xs shadow-xs hover:bg-accent/90 transition-all">
-                          <User className="h-4 w-4" />
-                          <span>Login / Register</span>
-                        </Link>
+                        <SheetClose asChild>
+                          <Link href="/admin/login" className="flex items-center justify-center gap-2 w-full py-2.5 bg-accent text-accent-foreground rounded-xl font-extrabold text-xs shadow-xs hover:bg-accent/90 transition-all">
+                            <User className="h-4 w-4" />
+                            <span>Login / Register</span>
+                          </Link>
+                        </SheetClose>
                       )}
                     </div>
                   </div>
@@ -261,7 +298,9 @@ export function Header() {
 
               {/* Store Logo */}
               <Link href="/" className="flex items-center group">
-                {storeLogo ? (
+                {isSettingsLoading ? (
+                  <div className="w-28 h-8 sm:h-9 bg-muted/65 animate-pulse rounded-xl" />
+                ) : storeLogo ? (
                   <div className="relative overflow-hidden transition-transform duration-300 group-hover:scale-105">
                     <Image
                       src={storeLogo}
@@ -385,30 +424,81 @@ export function Header() {
               </Link>
 
               {/* Account button: Compact icon on mobile, Full text on desktop */}
-              <Link
-                href={user ? "/admin" : "/admin/login"}
-                className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-secondary text-foreground hover:text-accent transition-all group shrink-0"
-              >
-                <User className="h-5.5 w-5.5 sm:h-6 sm:w-6 text-foreground group-hover:text-accent transition-colors" />
-                <div className="hidden md:flex flex-col text-left">
-                  <span className="text-xs md:text-sm font-bold text-foreground group-hover:text-accent transition-colors leading-tight">
-                    Account
-                  </span>
-                  <span className="text-[10px] font-medium text-accent leading-tight">
-                    {user ? t("nav.adminPanel") : "Register or Login"}
-                  </span>
-                </div>
-              </Link>
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-secondary text-foreground hover:text-accent transition-all group shrink-0 outline-none border-none bg-transparent select-none cursor-pointer">
+                      <User className="h-5.5 w-5.5 sm:h-6 sm:w-6 text-foreground group-hover:text-accent transition-colors" />
+                      <div className="hidden md:flex flex-col text-left">
+                        <span className="text-xs md:text-sm font-bold text-foreground group-hover:text-accent transition-colors leading-tight">
+                          Account
+                        </span>
+                        <span className="text-[10px] font-medium text-accent leading-tight">
+                          {isAdmin || isStaff ? "Admin Panel" : "Customer Account"}
+                        </span>
+                      </div>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-52 bg-popover border border-border rounded-xl shadow-md z-50 p-1">
+                    <div className="px-3 py-2 border-b border-border/40 text-left">
+                      <p className="text-[10px] text-muted-foreground leading-none font-bold uppercase">Logged in as</p>
+                      <p className="text-xs font-semibold text-foreground truncate mt-1" title={user.email}>{user.email}</p>
+                    </div>
+                    {(isAdmin || isStaff) ? (
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href="/admin"
+                          className="w-full flex items-center gap-2 rounded-lg cursor-pointer transition-colors px-3 py-2 text-xs font-bold text-foreground hover:bg-muted"
+                        >
+                          <User className="h-3.5 w-3.5" />
+                          <span>Admin Panel</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem asChild>
+                        <Link
+                          href="/admin"
+                          className="w-full flex items-center gap-2 rounded-lg cursor-pointer transition-colors px-3 py-2 text-xs font-bold text-foreground hover:bg-muted"
+                        >
+                          <User className="h-3.5 w-3.5" />
+                          <span>My Dashboard</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem
+                      onClick={() => signOut()}
+                      className="rounded-lg cursor-pointer transition-colors px-3 py-2 text-xs font-bold text-destructive hover:bg-destructive/10 hover:text-destructive flex items-center gap-2"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      <span>Logout</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link
+                  href="/admin/login"
+                  className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-secondary text-foreground hover:text-accent transition-all group shrink-0"
+                >
+                  <User className="h-5.5 w-5.5 sm:h-6 sm:w-6 text-foreground group-hover:text-accent transition-colors" />
+                  <div className="hidden md:flex flex-col text-left">
+                    <span className="text-xs md:text-sm font-bold text-foreground group-hover:text-accent transition-colors leading-tight">
+                      Account
+                    </span>
+                    <span className="text-[10px] font-medium text-accent leading-tight">
+                      Register or Login
+                    </span>
+                  </div>
+                </Link>
+              )}
             </div>
           </div>
 
           {/* Mobile Search Row - Ultra-smooth grid collapse on scroll */}
           <div
-            className={`md:hidden grid transition-all duration-300 ease-in-out ${
-              isScrolled
-                ? "grid-rows-[0fr] opacity-0 pointer-events-none"
-                : "grid-rows-[1fr] opacity-100 mt-2 pt-2 border-t border-border/30"
-            }`}
+            className={`md:hidden grid transition-all duration-300 ease-in-out ${isScrolled
+              ? "grid-rows-[0fr] opacity-0 pointer-events-none"
+              : "grid-rows-[1fr] opacity-100 mt-2 pt-2 border-t border-border/30"
+              }`}
           >
             <div className="overflow-hidden">
               <form onSubmit={handleSearchSubmit} className="flex items-center gap-1.5 bg-muted/40 rounded-xl border border-border/50 p-1 focus-within:border-accent focus-within:bg-background transition-all">
@@ -490,11 +580,10 @@ export function Header() {
 
       {/* Row 2: Desktop Navigation Bar */}
       <div
-        className={`hidden md:block border-t border-border/35 bg-background select-none transition-all duration-300 ease-in-out ${
-          isScrolled
-            ? "max-h-0 opacity-0 overflow-hidden border-t-0 py-0"
-            : "max-h-12 opacity-100 py-1.5"
-        }`}
+        className={`hidden md:block border-t border-border/35 bg-background select-none transition-all duration-300 ease-in-out ${isScrolled
+          ? "max-h-0 opacity-0 overflow-hidden border-t-0 py-0"
+          : "max-h-12 opacity-100 py-1.5"
+          }`}
       >
         <div className="container-shop flex items-center justify-start gap-1 flex-wrap">
           {navigation.map((item) => {
@@ -503,11 +592,10 @@ export function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`py-1.5 px-4 text-[15px] font-semibold transition-all duration-300 rounded-md flex items-center gap-1 shrink-0 ${
-                  isActive
-                    ? "bg-accent text-accent-foreground font-bold shadow-2xs"
-                    : "text-foreground hover:text-accent hover:bg-secondary/40"
-                }`}
+                className={`py-1.5 px-4 text-[15px] font-semibold transition-all duration-300 rounded-md flex items-center gap-1 shrink-0 ${isActive
+                  ? "bg-accent text-accent-foreground font-bold shadow-2xs"
+                  : "text-foreground hover:text-accent hover:bg-secondary/40"
+                  }`}
               >
                 <span>{item.name}</span>
                 {"hasDropdown" in item && (item as any).hasDropdown && (

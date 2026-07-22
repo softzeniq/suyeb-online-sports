@@ -23,6 +23,7 @@ export interface StoreSettings {
   about_hero_title: string;
   about_hero_image: string;
   about_story_title: string;
+  about_story_image: string;
   about_story_p1: string;
   about_story_p2: string;
   about_value_1_title: string;
@@ -54,6 +55,8 @@ export interface StoreSettings {
   privacy_content: string;
   terms_title: string;
   terms_content: string;
+  // Navigation / Header Categories
+  header_categories: string;
 }
 
 const DEFAULT_STORE_SETTINGS: StoreSettings = {
@@ -76,6 +79,8 @@ const DEFAULT_STORE_SETTINGS: StoreSettings = {
   about_hero_image:
     "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&q=80",
   about_story_title: "Our Story",
+  about_story_image:
+    "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=800&q=80",
   about_story_p1:
     "Founded in 2020, our store began with a simple mission: to bring premium quality products to everyone at fair prices.",
   about_story_p2:
@@ -109,6 +114,7 @@ const DEFAULT_STORE_SETTINGS: StoreSettings = {
   privacy_content: "",
   terms_title: "Terms & Conditions",
   terms_content: "",
+  header_categories: "",
 };
 
 export const STORE_SETTINGS_QUERY_KEY = ["store-settings"];

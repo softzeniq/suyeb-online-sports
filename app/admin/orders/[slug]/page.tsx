@@ -39,9 +39,9 @@ const statusOptions = [
 ] as const;
 
 export default function AdminOrderDetails() {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const router = useRouter();
-  const { data: order, isLoading, refetch } = useOrder(id || "");
+  const { data: order, isLoading, refetch } = useOrder(slug || "");
   const { data: storeSettings } = useStoreSettings();
   const updateStatus = useUpdateOrderStatus();
   const { t, formatCurrency, settings } = useSiteSettings();
