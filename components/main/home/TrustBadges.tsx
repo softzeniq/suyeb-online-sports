@@ -37,7 +37,7 @@ export function TrustBadges() {
             return (
               <div
                 key={index}
-                className={`flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-4 p-3.5 sm:p-4 rounded-2xl bg-background border border-border/60 shadow-2xs hover:shadow-md transition-all duration-300 hover:border-accent/30 reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""
+                className={`flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-4 p-3.5 sm:p-4 rounded-2xl bg-background border border-border/80 shadow-2xs hover:shadow-md transition-all duration-300 hover:border-accent/30 reveal-scale stagger-${index + 1} ${isVisible ? "reveal-visible" : ""
                   }`}
               >
                 <div className="p-2.5 sm:p-3 bg-accent/10 rounded-xl text-accent shrink-0">

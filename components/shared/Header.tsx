@@ -500,7 +500,7 @@ export function Header() {
           <div
             className={`md:hidden grid transition-all duration-300 ease-in-out ${isScrolled
               ? "grid-rows-[0fr] opacity-0 pointer-events-none"
-              : "grid-rows-[1fr] opacity-100 mt-2 pt-2 border-t border-border/30"
+              : "grid-rows-[1fr] opacity-100 mt-2 pt-2 border-t border-border/60"
               }`}
           >
             <div className="overflow-hidden">
@@ -509,7 +509,7 @@ export function Header() {
                   <DropdownMenuTrigger asChild>
                     <button
                       type="button"
-                      className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-extrabold text-foreground/80 bg-background/80 rounded-lg shrink-0 border border-border/40 cursor-pointer"
+                      className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-extrabold text-foreground/80 bg-background/80 rounded-lg shrink-0 border border-border/80 cursor-pointer"
                     >
                       <span className="truncate max-w-[85px]">
                         {selectedCategory ? selectedCategory.name : "All"}
