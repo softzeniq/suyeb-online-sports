@@ -158,7 +158,7 @@ export function HeroSlider() {
                               }`}
                           >
                             <Link href={ctaTarget}>
-                              <Button className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 px-4 py-1.5 md:px-8 md:py-4 font-bold text-[11px] md:text-sm uppercase tracking-wider transition-all shadow-lg hover:shadow-accent/20 active:scale-95 duration-300">
+                              <Button className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 px-4 py-1.5 md:px-8 md:py-5 font-bold text-[11px] md:text-sm uppercase tracking-wider transition-all shadow-lg hover:shadow-accent/20 active:scale-95 duration-300 cursor-pointer">
                                 {slide.cta_text}
                               </Button>
                             </Link>

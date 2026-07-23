@@ -62,6 +62,13 @@ export const ADMIN_NAVIGATION: AdminNavItem[] = [
     section: "Store",
   },
   {
+    name: "Promo Banners",
+    href: "/admin/promo-banners",
+    icon: Image,
+    roles: ["admin", "manager"],
+    section: "Store",
+  },
+  {
     name: "Coupons",
     href: "/admin/coupons",
     icon: Tag,

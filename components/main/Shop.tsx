@@ -363,8 +363,8 @@ export default function ShopPage() {
                   ? categories.find((c) => c.slug === selectedCategory)?.name || "Shop Collection"
                   : "All Products"}
               </h1>
-              <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                Explore our full catalog of premium merchandise and sports apparel.
+              <p className="hidden md:block text-xs md:text-sm text-muted-foreground mt-1">
+                Explore our full catalog of premium merchandise and apparel.
               </p>
             </div>
 
