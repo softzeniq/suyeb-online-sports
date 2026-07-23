@@ -112,7 +112,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Content Details */}
         <div className="pt-2 pb-0.5 flex flex-col">
           <Link href={`/products/${product.slug}`} className="block group-hover:text-accent transition-colors">
-            <h3 className="font-semibold text-sm line-clamp-2 leading-5 overflow-hidden text-ellipsis text-foreground/90 transition-colors group-hover:text-accent">
+            <h3 className="font-semibold text-sm line-clamp-2 leading-5 h-10 overflow-hidden text-ellipsis text-foreground/90 transition-colors group-hover:text-accent">
               {product.name}
             </h3>
           </Link>
@@ -167,12 +167,12 @@ export function ProductCard({ product }: ProductCardProps) {
           </button>
         </div>
       ) : (
-        <div className="flex items-center gap-2 mt-2 w-full">
+        <div className="flex items-center gap-1.5 mt-2 w-full">
           <button
             onClick={handleBuyNow}
-            className="bg-accent/5 text-accent hover:bg-accent hover:text-accent-foreground font-bold py-2 px-4 rounded-md text-xs flex-1 transition-all duration-200 shadow-sm active:scale-[0.98] text-center select-none flex items-center justify-center gap-1 cursor-pointer"
+            className="bg-accent/5 text-accent hover:bg-accent hover:text-accent-foreground font-bold py-2 px-1.5 sm:px-4 rounded-md text-[10px] sm:text-xs whitespace-nowrap flex-1 transition-all duration-200 shadow-sm active:scale-[0.98] text-center select-none flex items-center justify-center gap-1 cursor-pointer"
           >
-            <Plus className="h-3.5 w-3.5 shrink-0" />
+            <Plus className="h-3.5 w-3.5 shrink-0 hidden sm:inline-block" />
             <span>{t("product.orderNow")}</span>
           </button>
           <div className="relative group/cart shrink-0">
