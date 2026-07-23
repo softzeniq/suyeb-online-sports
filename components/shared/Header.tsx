@@ -127,18 +127,17 @@ export function Header() {
       <div className={`w-full transition-all duration-300 ${isScrolled ? "py-2" : "py-2.5 md:py-3"}`}>
         <div className="container-shop">
           <div className="flex items-center justify-between gap-2 md:gap-8">
-            {/* Logo & Mobile Drawer Trigger */}
-            <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
-              {/* Mobile Menu Drawer (Sheet) */}
+            {/* Mobile Menu Drawer Trigger (Left on Mobile, Hidden on Desktop) */}
+            <div className="md:hidden flex-1 flex justify-start">
               <Sheet>
                 <SheetTrigger asChild className="md:hidden">
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-9 w-9 hover:bg-secondary rounded-xl transition-colors cursor-pointer"
+                    className="h-10 w-10 hover:bg-secondary rounded-xl transition-colors cursor-pointer"
                     aria-label="Open menu"
                   >
-                    <Menu className="h-5.5 w-5.5 text-foreground" />
+                    <Menu className="h-6.5 w-6.5 text-foreground" />
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[85vw] max-w-xs bg-background p-0 border-r border-border/60">
@@ -295,8 +294,10 @@ export function Header() {
                   </div>
                 </SheetContent>
               </Sheet>
+            </div>
 
-              {/* Store Logo */}
+            {/* Store Logo (Centered on Mobile, Left-aligned on Desktop) */}
+            <div className="flex-1 md:flex-initial flex justify-center md:justify-start shrink-0">
               <Link href="/" className="flex items-center group">
                 {isSettingsLoading ? (
                   <div className="w-28 h-8 sm:h-9 bg-muted/65 animate-pulse rounded-xl" />
@@ -394,11 +395,11 @@ export function Header() {
             </form>
 
             {/* Right Actions & Account Status Info */}
-            <div className="flex items-center gap-2.5 sm:gap-4 md:gap-6 justify-end shrink-0 select-none">
+            <div className="flex-1 md:flex-initial flex items-center gap-2.5 sm:gap-4 md:gap-6 justify-end shrink-0 select-none">
               {/* Wishlist Heart Icon */}
               <Link
                 href="/wishlist"
-                className="relative flex items-center justify-center h-9 w-9 rounded-xl hover:bg-secondary text-foreground hover:text-accent transition-colors cursor-pointer"
+                className="hidden md:flex relative items-center justify-center h-9 w-9 rounded-xl hover:bg-secondary text-foreground hover:text-accent transition-colors cursor-pointer"
                 title="Wishlist"
               >
                 <Heart className="h-5.5 w-5.5 sm:h-6 sm:w-6" />
@@ -424,72 +425,74 @@ export function Header() {
               </Link>
 
               {/* Account button: Compact icon on mobile, Full text on desktop */}
-              {user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-secondary text-foreground hover:text-accent transition-all group shrink-0 outline-none border-none bg-transparent select-none cursor-pointer">
-                      <User className="h-5.5 w-5.5 sm:h-6 sm:w-6 text-foreground group-hover:text-accent transition-colors" />
-                      <div className="hidden md:flex flex-col text-left">
-                        <span className="text-xs md:text-sm font-bold text-foreground group-hover:text-accent transition-colors leading-tight">
-                          Account
-                        </span>
-                        <span className="text-[10px] font-medium text-accent leading-tight">
-                          {isAdmin || isStaff ? "Admin Panel" : "Customer Account"}
-                        </span>
+              <div className="hidden md:block shrink-0">
+                {user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-secondary text-foreground hover:text-accent transition-all group shrink-0 outline-none border-none bg-transparent select-none cursor-pointer">
+                        <User className="h-5.5 w-5.5 sm:h-6 sm:w-6 text-foreground group-hover:text-accent transition-colors" />
+                        <div className="hidden md:flex flex-col text-left">
+                          <span className="text-xs md:text-sm font-bold text-foreground group-hover:text-accent transition-colors leading-tight">
+                            Account
+                          </span>
+                          <span className="text-[10px] font-medium text-accent leading-tight">
+                            {isAdmin || isStaff ? "Admin Panel" : "Customer Account"}
+                          </span>
+                        </div>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-52 bg-popover border border-border rounded-xl shadow-md z-50 p-1">
+                      <div className="px-3 py-2 border-b border-border/40 text-left">
+                        <p className="text-[10px] text-muted-foreground leading-none font-bold uppercase">Logged in as</p>
+                        <p className="text-xs font-semibold text-foreground truncate mt-1" title={user.email}>{user.email}</p>
                       </div>
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-52 bg-popover border border-border rounded-xl shadow-md z-50 p-1">
-                    <div className="px-3 py-2 border-b border-border/40 text-left">
-                      <p className="text-[10px] text-muted-foreground leading-none font-bold uppercase">Logged in as</p>
-                      <p className="text-xs font-semibold text-foreground truncate mt-1" title={user.email}>{user.email}</p>
+                      {(isAdmin || isStaff) ? (
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href="/admin"
+                            className="w-full flex items-center gap-2 rounded-lg cursor-pointer transition-colors px-3 py-2 text-xs font-bold text-foreground hover:bg-muted"
+                          >
+                            <User className="h-3.5 w-3.5" />
+                            <span>Admin Panel</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href="/admin"
+                            className="w-full flex items-center gap-2 rounded-lg cursor-pointer transition-colors px-3 py-2 text-xs font-bold text-foreground hover:bg-muted"
+                          >
+                            <User className="h-3.5 w-3.5" />
+                            <span>My Dashboard</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem
+                        onClick={() => signOut()}
+                        className="rounded-lg cursor-pointer transition-colors px-3 py-2 text-xs font-bold text-destructive hover:bg-destructive/10 hover:text-destructive flex items-center gap-2"
+                      >
+                        <LogOut className="h-3.5 w-3.5" />
+                        <span>Logout</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Link
+                    href="/admin/login"
+                    className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-secondary text-foreground hover:text-accent transition-all group shrink-0"
+                  >
+                    <User className="h-5.5 w-5.5 sm:h-6 sm:w-6 text-foreground group-hover:text-accent transition-colors" />
+                    <div className="hidden md:flex flex-col text-left">
+                      <span className="text-xs md:text-sm font-bold text-foreground group-hover:text-accent transition-colors leading-tight">
+                        Account
+                      </span>
+                      <span className="text-[10px] font-medium text-accent leading-tight">
+                        Register or Login
+                      </span>
                     </div>
-                    {(isAdmin || isStaff) ? (
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href="/admin"
-                          className="w-full flex items-center gap-2 rounded-lg cursor-pointer transition-colors px-3 py-2 text-xs font-bold text-foreground hover:bg-muted"
-                        >
-                          <User className="h-3.5 w-3.5" />
-                          <span>Admin Panel</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    ) : (
-                      <DropdownMenuItem asChild>
-                        <Link
-                          href="/admin"
-                          className="w-full flex items-center gap-2 rounded-lg cursor-pointer transition-colors px-3 py-2 text-xs font-bold text-foreground hover:bg-muted"
-                        >
-                          <User className="h-3.5 w-3.5" />
-                          <span>My Dashboard</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem
-                      onClick={() => signOut()}
-                      className="rounded-lg cursor-pointer transition-colors px-3 py-2 text-xs font-bold text-destructive hover:bg-destructive/10 hover:text-destructive flex items-center gap-2"
-                    >
-                      <LogOut className="h-3.5 w-3.5" />
-                      <span>Logout</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Link
-                  href="/admin/login"
-                  className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-secondary text-foreground hover:text-accent transition-all group shrink-0"
-                >
-                  <User className="h-5.5 w-5.5 sm:h-6 sm:w-6 text-foreground group-hover:text-accent transition-colors" />
-                  <div className="hidden md:flex flex-col text-left">
-                    <span className="text-xs md:text-sm font-bold text-foreground group-hover:text-accent transition-colors leading-tight">
-                      Account
-                    </span>
-                    <span className="text-[10px] font-medium text-accent leading-tight">
-                      Register or Login
-                    </span>
-                  </div>
-                </Link>
-              )}
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
 
