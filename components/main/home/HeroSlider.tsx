@@ -86,9 +86,9 @@ export function HeroSlider() {
   }
 
   return (
-    <section className="w-full pb-3 md:pb-6 pt-0 px-0">
+    <section className="w-full p-3 md:px-0 md:pt-0 md:pb-6">
       {/* Slider Container */}
-      <div className="relative overflow-hidden group w-full rounded-none h-[280px] sm:h-[380px] md:h-[520px] lg:h-[600px]">
+      <div className="relative overflow-hidden group w-full rounded-xl md:rounded-none h-[280px] sm:h-[380px] md:h-[520px] lg:h-[600px]">
         {/* Slides */}
         {slides.map((slide, index) => {
           const isActive = index === currentSlide;
