@@ -170,7 +170,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="flex items-center gap-1.5 mt-2 w-full">
           <button
             onClick={handleBuyNow}
-            className="bg-accent/5 text-accent hover:bg-accent hover:text-accent-foreground font-bold py-2 px-1.5 sm:px-4 rounded-md text-[10px] sm:text-xs whitespace-nowrap flex-1 transition-all duration-200 shadow-sm active:scale-[0.98] text-center select-none flex items-center justify-center gap-1 cursor-pointer"
+            className="bg-accent/5 text-accent hover:bg-accent hover:text-accent-foreground font-bold py-2 px-1.5 sm:px-4 rounded-md text-[12px] sm:text-xs whitespace-nowrap flex-1 transition-all duration-200 shadow-sm active:scale-[0.98] text-center select-none flex items-center justify-center gap-1 cursor-pointer"
           >
             <Plus className="h-3.5 w-3.5 shrink-0 hidden sm:inline-block" />
             <span>{t("product.orderNow")}</span>
